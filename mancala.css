@@ -1,0 +1,131 @@
+.board {
+    width: 1000px;
+    min-width: 50%;
+    height: 400px;
+    background-color: #CD853F;
+    border-radius: 50px;
+    display: flex;
+}
+
+.grid-container {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(8,1fr)
+}
+
+.grid-item {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+}
+
+
+.hole {
+    width: 80%;
+    height: 80%;
+    background-color: #A0522D;
+    border-radius: 100px;
+    margin: 10%;
+}
+
+.box1 {
+    grid-column-start: 1;
+    grid-row-start: 1;
+    grid-row-end: 3 ;
+}
+
+.box2 {
+    grid-column-start: 8;
+    grid-row-start: 1;
+    grid-row-end: 3 ;
+}
+
+.hole-points {
+    width: 80%;
+    height: 80%;
+    background-color: #A0522D;
+    border-radius: 100px;
+    margin: 10%;
+}
+
+.blue-rect {
+
+    position: absolute;
+    width: 140vw;
+    height: 25vw;
+    right: -15vw;
+    top: 85vw;
+    
+    background: rgba(46, 122, 154, 0.5);
+    border-radius: 110px;
+    transform: rotate(10deg);
+}
+
+/*--------header----------*/
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+  
+.header button {
+    border: none;
+    background-color: unset;
+    cursor: pointer;
+    margin: auto;
+    font-weight:700;
+    font-size: 22px;
+}
+
+/*.header button:hover {
+    transform: scale(1.2, 1.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: .3s ease-in-out;
+}
+
+.header-mancala-logo {
+    width: 200px;
+    color:#82358C;
+}
+
+.logo-mancala {
+    all: unset;
+    font-size: 39.83px !important;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.logo-mancala:hover {
+    transform: scale(1.2, 1.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: .3s ease-in-out;
+}
+
+.logo-slogan {
+    padding-inline: 3px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px)
+{
+.header {
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    margin-block: 20px;
+}
+.header-mancala-logo {
+    text-align: center;
+    order: -1;
+    flex: 1 0 100%;
+    margin-bottom: 20px;
+}
+}*/
+  
+  
+
+
