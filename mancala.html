@@ -19,22 +19,39 @@
             }
         }
 
+        function displayFlex(s) {
+            if (document.getElementById(s).style.display == 'flex') {
+                document.getElementById(s).style.display = 'none';
+            } else {
+                document.getElementById(s).style.display = 'flex'
+            }
+        }
+
         window.onload = myFunction;
 
     </script>
 </head>
 <body>
+    <div id="rules" class="rules"></div>
 
     <div class="header">
-        <div className="header-mancala-logo">
+        
+        <div class="navbar-logo">
             <button type="button" class="logo-mancala" >Mancala!</button>
             <div class="logo-slogan">play and enjoy</div>
         </div>
-        <div class="login center dropdown">
-            login
-            <div class="dropdown-content">
-                <div class="login-title">username</div>
-                <input type="text" id="fname" name="fname">
+        <div class="navbar-options">
+            <button  type="button" onclick="displayFlex('rules')" class="option center">
+                rules
+            </button>
+            <div class="option center dropdown">
+                login
+                <div id="login-dropdown" class="dropdown-content">
+                    <div class="login-title">username</div>
+                    <input type="text" id="fname" name="fname">
+                    <div class="login-title">password</div>
+                    <input type="password" id="fname" name="fname">
+                </div>
             </div>
         </div>
     </div>
