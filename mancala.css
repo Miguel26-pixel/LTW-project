@@ -2,6 +2,12 @@ body {
     margin: 0;
 }
 
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .container {
     height: calc(100vh - 100px);
 }
@@ -13,7 +19,7 @@ body {
     width: 1000px;
     min-width: none;
     height: 400px;
-    --background-color: #CD853F;
+    border: 5px solid #ffe489;
     background-image: url('wood3.jpg');
     background-size: 100% 100%; 
     border-radius: 50px;
@@ -67,7 +73,6 @@ body {
 
 .seed {
     position: absolute;
-    --background-color: #f84949;
     background: radial-gradient( rgb(167, 167, 167),rgb(226, 96, 20));
     height: 35px;
     width: 20px;
@@ -107,6 +112,42 @@ body {
     font-size: 22px;
 }
 
+.login {
+    height: 100%;
+    width: 15%;
+    align-items: right;
+    background-color: rgb(226, 226, 226);
+    text-transform: uppercase;
+}
+
+.login:hover {
+    background-color: rgb(218, 218, 218);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    left:0;
+    top: 100px;
+    background-color: #f9f9f9;
+    width: 100%;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-title {
+    padding: 10px 10px 10px 10px;
+}
 /*.header button:hover {
     transform: scale(1.2, 1.2);
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
