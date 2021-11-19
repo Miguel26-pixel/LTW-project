@@ -7,33 +7,108 @@
     <title>Document</title>
 
     <link rel="stylesheet" href="mancala.css">
+
+    <script type="text/javascript">
+        function myFunction() {
+            var seeds = document.getElementsByClassName("seed");
+            for ( var i=0; i < seeds.length; i++ ) {
+                var seed = seeds[i];
+                seed.style.top = 20 + Math.floor(Math.random() * 50) + "%";
+                seed.style.left = 20 + Math.floor(Math.random() * 50) +"%";
+                seed.style.transform = 'rotate('+Math.floor(Math.random() * 360)+'deg)';
+            }
+        }
+
+        window.onload = myFunction;
+
+    </script>
 </head>
 <body>
 
-    <div className="header">
+    <div class="header">
         <div className="header-mancala-logo">
             <button type="button" className="logo-mancala" >Mancala!</button>
             <div className="logo-slogan">play and enjoy</div>
         </div>
     </div>
-    
-
-    <div class="board ">
-        <div class="grid-container">
-            <div class="hole-points box1"></div>
-            <div class="hole-points box2"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
-            <div class="hole"></div>
+    <div class="container">
+        <div class="board ">
+            <div class="grid-container">
+                <div class="hole-points box1"></div>
+                <div class="hole-points box2"></div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+                <div class="hole">
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                    <div id="seed" class="seed"></div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

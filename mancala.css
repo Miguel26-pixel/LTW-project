@@ -1,10 +1,22 @@
+body {
+    margin: 0;
+}
+
+.container {
+    height: calc(100vh - 100px);
+}
+
 .board {
+    position: relative;
+    top: calc(50% - 200px);
+    left: calc(50% - 500px);   
     width: 1000px;
-    min-width: 50%;
+    min-width: none;
     height: 400px;
-    background-color: #CD853F;
+    --background-color: #CD853F;
+    background-image: url('wood3.jpg');
+    background-size: 100% 100%; 
     border-radius: 50px;
-    display: flex;
 }
 
 .grid-container {
@@ -23,11 +35,12 @@
 
 
 .hole {
+    position: relative;
     width: 80%;
     height: 80%;
-    background-color: #A0522D;
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 100px;
-    margin: 10%;
+    margin: 16px 10% 16px 10%;
 }
 
 .box1 {
@@ -43,11 +56,22 @@
 }
 
 .hole-points {
+    position: relative;
     width: 80%;
-    height: 80%;
-    background-color: #A0522D;
+    height: 70%;
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 100px;
-    margin: 10%;
+    margin: 60px 10% 60px 10%;
+}
+
+.seed {
+    position: absolute;
+    --background-color: #f84949;
+    background: radial-gradient( rgb(167, 167, 167),rgb(226, 96, 20));
+    height: 35px;
+    width: 20px;
+    border-radius: 50%;
+    box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.3);
 }
 
 .blue-rect {
@@ -65,10 +89,12 @@
 
 /*--------header----------*/
 
-header {
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 100px;
+    background-color: rgb(226, 226, 226);
 }
   
 .header button {
