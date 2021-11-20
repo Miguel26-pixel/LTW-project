@@ -7,10 +7,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
-.container {
-    height: calc(100vh - 100px);
+.board-container {
+    height: calc(80vh - 100px);
+}
+
+.playBtn-container {
+    height: calc(20vh);
 }
 
 .board {
@@ -45,10 +50,19 @@ body {
 .hole {
     position: relative;
     width: 80%;
-    height: 80%;
+    height: 70%;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 100px;
-    margin: 16px 10% 16px 10%;
+    margin: 0 10% 10px 10%;
+}
+
+.number {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px 10px 5px 10px;
+    border-radius: 50%;
 }
 
 .box1 {
@@ -69,7 +83,7 @@ body {
     height: 70%;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 100px;
-    margin: 60px 10% 60px 10%;
+    margin: 0 10% 10px 10%;
 }
 
 .seed {
@@ -118,7 +132,7 @@ body {
     all: unset
 }
 
-.rules {
+.pop-up {
     display: none;
     position: absolute;
     top: calc(50vh - 300px);
@@ -139,10 +153,11 @@ body {
 
 .dropdown-content {
     display: none;
+    flex-direction: column;
     position: absolute;
-    left:0;
+    right:0;
     top: 100px;
-    width: 100%;
+    width: 20%;
     background-color: rgb(226, 226, 226);
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -162,6 +177,7 @@ body {
 }
 
 .navbar-options {
+    position: relative;
     display: flex;
     justify-content: flex-end;
     width: 80%;
