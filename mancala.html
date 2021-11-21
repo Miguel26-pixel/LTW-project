@@ -8,33 +8,52 @@
 
     <link rel="stylesheet" href="mancala.css">
 
-    <script type="text/javascript">
-        function myFunction() {
-            var seeds = document.getElementsByClassName("seed");
-            for ( var i=0; i < seeds.length; i++ ) {
-                var seed = seeds[i];
-                seed.style.top = 20 + Math.floor(Math.random() * 50) + "%";
-                seed.style.left = 20 + Math.floor(Math.random() * 50) +"%";
-                seed.style.transform = 'rotate('+Math.floor(Math.random() * 360)+'deg)';
-            }
-        }
 
-        function displayFlex(s) {
-            if (document.getElementById(s).style.display == 'flex') {
-                document.getElementById(s).style.display = 'none';
-            } else {
-                document.getElementById(s).style.display = 'flex'
-            }
-        }
-
-        window.onload = myFunction;
-
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous"></script>
+    <script>
+        $(function(){
+            $("#rules").load("rules.html");
+            $("#classifications").load("classifications.html");
+        });
     </script>
+
+    <script src="mancala.js"></script>
+
 </head>
 <body>
-    <div id="rules" class="pop-up center">RULES</div>
-    <div id="configuration" class="pop-up center">CONFIGURATION</div>
-    <div id="classifications" class="pop-up center">CLASSIFICATIONS</div>
+    <div id="rules" class="pop-up"></div>
+    <div id="configuration" class="pop-up">
+
+        <div class="configurations" style="width: 100%;">
+            <div class="login-title center" style="width: 40%;">number of holes on each side</div>
+            <input id="hole_number" class="center" style="width: 40% !important;" type="number" id="fname" name="fname" value="6">
+            
+            <div class="login-title center" style="width: 40%;">initial number of seeds on each hole</div>
+            <input id="seed_number" type="number" id="fname" name="fname" value="4">
+            
+            <div class="login-title center" style="width: 40%;">play against:</div>
+            <input type="radio" id="person" name="radio1">
+            <label for="person">Person</label>
+            <input type="radio" id="computer" name="radio1" checked>
+            <label for="computer">Computer</label>
+            
+            <div class="login-title center" style="width: 40%;">who start the game</div>
+            <input type="radio" id="person" name="radio2">
+            <label for="person">Person</label>
+            <input type="radio" id="computer" name="radio2" checked>
+            <label for="computer">Computer</label>
+            
+            <div class="login-title center" style="width: 40%;">difficulty</div>
+            <input type="radio" id="easy" name="radio3" checked>
+            <label for="easy">Easy</label>
+            <input type="radio" id="hard" name="radio3">
+            <label for="hard">Hard</label>
+        </div>
+
+    </div>
+    <div id="classifications" class="pop-up"></div>
 
     <div class="header">
         
@@ -65,124 +84,14 @@
     </div>
     <div class="board-container">
         <div class="board ">
-            <div class="grid-container">
+            <div id="grid" class="grid-container">
                 <div class="center box1">
-                    <div class="hole-points ">
-                    </div>
+                    <div class="hole-points"></div>
                     <div class="number">0</div>
                 </div>
                 <div class="center box2">
-                    <div class="hole-points ">
-                    </div>
+                    <div class="hole-points"></div>
                     <div class="number">0</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
-                </div>
-                <div class="center">
-                    <div class="hole">
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                        <div id="seed" class="seed"></div>
-                    </div>
-                    <div class="number">4</div>
                 </div>
             </div>
         </div>

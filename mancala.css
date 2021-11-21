@@ -108,6 +108,10 @@ body {
     transform: rotate(10deg);
 }
 
+.scrollable {
+    overflow-y:scroll;
+}
+
 /*--------header----------*/
 
 .header {
@@ -141,6 +145,8 @@ body {
     height: 600px;
     z-index: 2;
     background-color: rgb(226, 226, 226);
+    padding: 10px;
+    border-radius: 15px;
 }
 
 .option:hover {
@@ -166,6 +172,11 @@ body {
 .dropdown:hover .dropdown-content {
     display: flex;
     flex-direction: column;
+}
+
+.configurations {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .login-title {
