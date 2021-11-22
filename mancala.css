@@ -10,6 +10,10 @@ body {
     flex-direction: column;
 }
 
+.display-none {
+    display: none;
+}
+
 .board-container {
     height: calc(80vh - 100px);
 }
@@ -72,7 +76,7 @@ body {
 }
 
 .box2 {
-    grid-column-start: 8;
+    grid-column-start: var(--hole_number);
     grid-row-start: 1;
     grid-row-end: 3 ;
 }
