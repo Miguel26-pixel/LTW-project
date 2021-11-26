@@ -1,4 +1,3 @@
-var is_moving = false;
 var game = false;
 var pop_ups = ['configuration','rules','classifications'];
 
@@ -31,41 +30,83 @@ function displayFlex(s) {
 function createBoard() {
     let configurations = getConfigurations();
 
-    let grid = document.getElementById("grid");
+    let board = document.getElementById("board");
+    board.innerHTML=""
+
+    let grid = document.createElement("div");
+    grid.classList.add("grid-container");
     grid.style.gridTemplateColumns = "repeat("+(parseInt(configurations.hole_number) + 2)+", 1fr)";
 
-    //style="--radius: var(--rad-50);"
-    grid.innerHTML = '<div class="center box1"><div id="hole-'+ (configurations.hole_number * 2 + 1) +'" class="hole-points"></div><div class="number">0</div></div><div class="center box2" style="--hole_number: '+(parseInt(configurations.hole_number) + 2)+'"><div id="hole-'+configurations.hole_number+'" class="hole-points"></div><div class="number">0</div></div>';
+    let hole_points = document.createElement('div');
+    hole_points.classList.add("hole-points");
 
-    let hole='';
+    let number = document.createElement('div');
+    number.classList.add("number");
+    number.innerHTML='0';
+
+    let container_points1 = document.createElement('div'); let container_points2 = document.createElement('div');
+    container_points1.classList.add("center"); container_points2.classList.add("center");
+    container_points1.classList.add("box1"); container_points2.classList.add("box2");
+    container_points2.style.setProperty("--hole_number",(parseInt(configurations.hole_number) + 2));
+    container_points1.appendChild(hole_points.cloneNode(true)); container_points2.appendChild(hole_points.cloneNode(true));
+    container_points1.appendChild(number.cloneNode(true)); container_points2.appendChild(number.cloneNode(true));
+    container_points1.firstChild.setAttribute("id","hole-"+(configurations.hole_number * 2 + 1));
+    container_points2.firstChild.setAttribute("id","hole-"+configurations.hole_number);
+
+    grid.appendChild(container_points1);
+    grid.appendChild(container_points2);
+
+    let hole_container = document.createElement('div');
+    hole_container.classList.add("center");
+
+    let hole = document.createElement("button");
+    hole.classList.add("hole");
+
+    let seed = document.createElement('div');
+    seed.classList.add("seed");
     
     for (let i = 0; i < configurations.seed_number; i++) {
-        hole += '<div id="seed" class="seed"></div>';
+        hole.appendChild(seed.cloneNode(true))
     }
 
-    hole += '</button><div class="number">'+configurations.seed_number+'</div></div>';
+    number.innerHTML = configurations.seed_number;
+
+    hole_container.appendChild(hole);
+    hole_container.appendChild(number.cloneNode(true));
+    
 
     for (let i = configurations.hole_number * 2; i > configurations.hole_number; i--) {
-        grid.innerHTML += '<div class="center"><button id="hole-'+i+'" class="hole"">'+hole;
+        let clone = hole_container.cloneNode(true);
+        clone.firstChild.setAttribute("id","hole-"+i);
+        grid.appendChild(clone);
     }
 
     for (let i = 0; i < configurations.hole_number; i++) {
-        grid.innerHTML += '<div class="center"><button id="hole-'+i+'" class="hole" onclick="move('+i+')">'+hole;
+        let clone = hole_container.cloneNode(true); 
+        clone.firstChild.setAttribute("id","hole-"+i);
+        clone.firstChild.setAttribute("onclick","move("+i+")");
+        grid.appendChild(clone);
     }
+    
+    board.appendChild(grid);
     randomPosition();
+
+    if (configurations.first == "computer" && game){
+        disable_events();
+        setTimeout(function(){ moveRamdom();}, 1000);
+    }
 }
 
 function start_game() {
     closePopUps();
-    createBoard();
     game = true;
+    createBoard();
     document.getElementById("quit").style.display="flex";
     document.getElementById("play").style.display="none";
     displayFlex("configuration");
 }
 
 function quit_game() {
-    if (is_moving) return;
     game = false;
     document.getElementById("play").style.display="flex";
     document.getElementById("quit").style.display="none";
@@ -88,10 +129,20 @@ function getOppositeHole(i) {
     return document.getElementById('hole-'+(parseInt(getConfigurations().hole_number) * 2 - i))
 }
 
+function disable_events() {
+    for (let i = 0; i < getConfigurations().hole_number; i++) {
+        document.getElementById('hole-'+i).onclick=null;
+    }
+}
+
+function enable_events() {
+    for (let i = 0; i < getConfigurations().hole_number; i++) {
+        document.getElementById('hole-'+i).onclick= function() { move(i); }
+    }
+}
+
 function move(i) {
-    if (is_moving || !game) return;
-    console.log("Player-TURN1");
-    is_moving = true;
+    if (!game) return;
     let hole = document.getElementById('hole-'+i);
     let seeds = hole.getElementsByClassName('seed');
     if (seeds.length == 0) return;
@@ -105,7 +156,6 @@ function move(i) {
     }
     
     hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-    console.log("Player-TURN2");
     if (nexthole.id === 'hole-'+getConfigurations().hole_number) { 
         is_moving = false; 
         return; 
@@ -121,13 +171,13 @@ function move(i) {
         opposite_hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
         my_points.parentElement.getElementsByClassName('number')[0].innerHTML = my_points.getElementsByClassName('seed').length;
     } 
-    console.log("Player-TURN3");
-    setTimeout(function(){ moveRamdom(); is_moving = false; }, 1000);
+    disable_events();
+    setTimeout(function(){ moveRamdom();}, 1000);
 }
 
 function moveRamdom() {
-    console.log("PC-TURN1");
-    if (!checkPossibilities(2)) { is_moving = false; quit_game(); return; }
+    if (!game) return;
+    if (!checkPossibilities(2)) { quit_game(); return; }
     let i = Math.floor(Math.random() * parseInt(getConfigurations().hole_number)) + parseInt(getConfigurations().hole_number) + 1;
     let hole = document.getElementById('hole-'+i);
     let seeds = hole.getElementsByClassName('seed');
@@ -149,9 +199,12 @@ function moveRamdom() {
         nexthole.parentElement.getElementsByClassName('number')[0].innerHTML = nexthole.getElementsByClassName('seed').length;
     }
     hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-    console.log("PC-TURN1");
+
     if (nexthole.id === 'hole-'+ (getConfigurations().hole_number * 2 + 1)) { 
-        setTimeout(function(){ if (checkPossibilities(2)) moveRamdom(); }, 1000);
+        setTimeout(function() {
+             if (checkPossibilities(2)) { moveRamdom(); }
+             else { quit_game(); } 
+            }, 1000);
     } else if (i > getConfigurations().hole_number && nexthole.getElementsByClassName('seed').length === 1 ) {
         let my_points = document.getElementById('hole-'+ (parseInt(getConfigurations().hole_number) * 2 + 1));
         my_points.appendChild(nexthole.getElementsByClassName('seed')[0]);
@@ -163,17 +216,42 @@ function moveRamdom() {
         }
         opposite_hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
         my_points.parentElement.getElementsByClassName('number')[0].innerHTML = my_points.getElementsByClassName('seed').length;
+        enable_events();
+    } else {
+        enable_events();
     }
-    console.log("PC-TURN1");
-    if (!checkPossibilities(1)) { is_moving = false; quit_game(); return; }
+    if (!checkPossibilities(1)) {quit_game(); return; }
 }
 
+function moveBestPlay() {
+    let best_move = 0;
+    let best_points = 0;
+    for (let i = parseInt(getConfigurations().hole_number) * 2; i > getConfigurations().hole_number; i -= 1) {
+        if (document.getElementById('hole-'+i).getElementsByClassName('seed').length > 0) {
+            let points = getPoints('hole-'+i);
+            if (points > best_points) {
+                best_points = points;
+                best_move = i;
+            }
+        }
+    }
+}
 
+function getPoints(id) {
+
+}
 
 function getConfigurations() {
+    let options = document.getElementsByName('radio2');
+    let first = options[0];
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].checked)
+            first = options[i];
+    }
     let c = {   
         hole_number: document.getElementById("hole_number").value,
-        seed_number: document.getElementById("seed_number").value
+        seed_number: document.getElementById("seed_number").value,
+        first: first.id
     };
     return c;
 }
