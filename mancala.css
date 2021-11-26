@@ -2,6 +2,9 @@ body {
     margin: 0;
 }
 
+html {
+    overflow-x: hidden;
+}
 
 .center {
     display: flex;
@@ -10,11 +13,24 @@ body {
     flex-direction: column;
 }
 
+.center-play {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.center-play button {
+    background-image: url('wood2.jpg');
+}
+
 .display-none {
     display: none;
 }
 
 .board-container {
+    margin-top: 5%;
     height: calc(80vh - 100px);
 }
 
@@ -121,10 +137,21 @@ body {
 .header {
     display: flex;
     align-items: right;
-    height: 100px;
+    height: 80px;
     background-color: rgb(226, 226, 226);
+    padding-left: 2%;
+    padding-right: 2%;
+    background: linear-gradient(
+        90deg, rgb(183 141 90) 0%, rgba(189,151,98,1) 18%, rgba(177,141,95,1) 46%, rgba(184,147,88,1) 100%);
+    background-size:20px;
 }
-  
+
+@keyframes barberpole {
+    0% {background-position: 0%;}
+    50% {background-position: 100%;}
+    100% {background-position: 0%;}
+}
+
 .header button {
     border: 0;
 }
@@ -132,8 +159,10 @@ body {
 .option {
     height: 100%;
     width: 20%;
-    background-color: rgb(226, 226, 226);
     text-transform: uppercase;
+    background: linear-gradient(
+        90deg, rgb(183 141 90) 0%, rgba(189,151,98,1) 40%, rgba(177,141,95,1) 60%, rgba(184,147,88,1) 100%);
+    background-size:20px;
 }
 
 .option button {
@@ -141,20 +170,23 @@ body {
 }
 
 .pop-up {
+    margin-top:10%;
     display: none;
     position: absolute;
     top: calc(50vh - 300px);
     left: calc(50vw - 350px);
     width: 700px;
-    height: 600px;
+    height: 400px;
     z-index: 2;
     background-color: rgb(226, 226, 226);
     padding: 10px;
     border-radius: 15px;
+    background-image: url('wood4.jpg');
 }
 
 .option:hover {
-    background-color: rgb(218, 218, 218);
+    -webkit-animation: barberpole 4s infinite linear;
+    animation: barberpole 4s infinite linear;
 }
 
 .dropdown {
@@ -168,7 +200,7 @@ body {
     right:0;
     top: 100px;
     width: 20%;
-    background-color: rgb(226, 226, 226);
+    background-image: url('wood4.jpg');
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
 }
@@ -195,6 +227,7 @@ body {
     position: relative;
     display: flex;
     justify-content: flex-end;
+    background-color: none;
     width: 80%;
 }
 
@@ -207,7 +240,7 @@ input[type=text],input[type=password] {
 }
 
 
-/*.header button:hover {
+.header button:hover {
     transform: scale(1.2, 1.2);
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     transition: .3s ease-in-out;
@@ -229,6 +262,7 @@ input[type=text],input[type=password] {
     transform: scale(1.2, 1.2);
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     transition: .3s ease-in-out;
+
 }
 
 .logo-slogan {
@@ -251,7 +285,7 @@ input[type=text],input[type=password] {
     flex: 1 0 100%;
     margin-bottom: 20px;
 }
-}*/
+}
   
   
 
