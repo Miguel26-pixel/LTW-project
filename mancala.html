@@ -41,9 +41,9 @@
             <label for="computer">Computer</label>
             
             <div class="login-title center" style="width: 40%;">who start the game</div>
-            <input type="radio" id="person" name="radio2" >
+            <input type="radio" id="person" name="radio2" checked>
             <label for="person">Person</label>
-            <input type="radio" id="computer" name="radio2" checked>
+            <input type="radio" id="computer" name="radio2">
             <label for="computer">Computer</label>
             
             <div class="login-title center" style="width: 40%;">difficulty</div>
@@ -83,10 +83,8 @@
             </div>
         </div>
     </div>
-    <div class="board-container">
-        <div class="board" id="board">
-                
-        </div>
+    <div class="board-container" id="board-container">
+    
     </div>
     <div class="playBtn-container center-play">
         <button id="play" type="button" class="center-play" onclick="start_game()">Play</button>

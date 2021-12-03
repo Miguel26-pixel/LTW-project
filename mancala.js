@@ -1,244 +1,396 @@
-var game = false;
+//import { Board } from "./classes.js"
+
+var board;
 var pop_ups = ['configuration','rules','classifications'];
 
-function randomPosition() {
-    var seeds = document.getElementsByClassName("seed");
-    for ( var i=0; i < seeds.length; i++ ) {
-        var seed = seeds[i];
-        seed.style.top = 20 + Math.floor(Math.random() * 50) + "%";
-        seed.style.left = 20 + Math.floor(Math.random() * 50) +"%";
-        seed.style.transform = 'rotate('+Math.floor(Math.random() * 360)+'deg)';
-    }
-}
 
-function closePopUps() {
-    for (let i = 0; i < pop_ups.length; i++) {
-        document.getElementById(pop_ups[i]).style.display = 'none';
-    }
-}
-
-function displayFlex(s) {
-    if (s === "configuration" && game) { return; }
-    if (document.getElementById(s).style.display == 'flex') {
-        document.getElementById(s).style.display = 'none';
-    } else {
-        closePopUps();
-        document.getElementById(s).style.display = 'flex'
-    }
-}
-
-function createBoard() {
-    let configurations = getConfigurations();
-
-    let board = document.getElementById("board");
-    board.innerHTML=""
-
-    let grid = document.createElement("div");
-    grid.classList.add("grid-container");
-    grid.style.gridTemplateColumns = "repeat("+(parseInt(configurations.hole_number) + 2)+", 1fr)";
-
-    let hole_points = document.createElement('div');
-    hole_points.classList.add("hole-points");
-
-    let number = document.createElement('div');
-    number.classList.add("number");
-    number.innerHTML='0';
-
-    let container_points1 = document.createElement('div'); let container_points2 = document.createElement('div');
-    container_points1.classList.add("center"); container_points2.classList.add("center");
-    container_points1.classList.add("box1"); container_points2.classList.add("box2");
-    container_points2.style.setProperty("--hole_number",(parseInt(configurations.hole_number) + 2));
-    container_points1.appendChild(hole_points.cloneNode(true)); container_points2.appendChild(hole_points.cloneNode(true));
-    container_points1.appendChild(number.cloneNode(true)); container_points2.appendChild(number.cloneNode(true));
-    container_points1.firstChild.setAttribute("id","hole-"+(configurations.hole_number * 2 + 1));
-    container_points2.firstChild.setAttribute("id","hole-"+configurations.hole_number);
-
-    grid.appendChild(container_points1);
-    grid.appendChild(container_points2);
-
-    let hole_container = document.createElement('div');
-    hole_container.classList.add("center");
-
-    let hole = document.createElement("button");
-    hole.classList.add("hole");
-
-    let seed = document.createElement('div');
-    seed.classList.add("seed");
-    
-    for (let i = 0; i < configurations.seed_number; i++) {
-        hole.appendChild(seed.cloneNode(true))
-    }
-
-    number.innerHTML = configurations.seed_number;
-
-    hole_container.appendChild(hole);
-    hole_container.appendChild(number.cloneNode(true));
-    
-
-    for (let i = configurations.hole_number * 2; i > configurations.hole_number; i--) {
-        let clone = hole_container.cloneNode(true);
-        clone.firstChild.setAttribute("id","hole-"+i);
-        grid.appendChild(clone);
-    }
-
-    for (let i = 0; i < configurations.hole_number; i++) {
-        let clone = hole_container.cloneNode(true); 
-        clone.firstChild.setAttribute("id","hole-"+i);
-        clone.firstChild.setAttribute("onclick","move("+i+")");
-        grid.appendChild(clone);
-    }
-    
-    board.appendChild(grid);
-    randomPosition();
-
-    if (configurations.first == "computer" && game){
-        disable_events();
-        setTimeout(function(){ moveRamdom();}, 1000);
-    }
+function createBoard(game) {
+    board = new Board(game);
+    board.addToContainer();
 }
 
 function start_game() {
     closePopUps();
     game = true;
-    createBoard();
+    board.element.remove();
+    createBoard(true);
     document.getElementById("quit").style.display="flex";
     document.getElementById("play").style.display="none";
-    displayFlex("configuration");
+
+    if (board.configurations.first == "computer" && board.game){
+        board.disable_events();
+        setTimeout(function(){ moveRamdom();}, 1000);
+    }
 }
 
 function quit_game() {
-    game = false;
+    board.setGame(false);
     document.getElementById("play").style.display="flex";
     document.getElementById("quit").style.display="none";
 }
 
-function checkPossibilities(player) {
-    if (player === 1) {
+function move(id) {
+    board.myMove(id)
+}
+
+window.onload = function() { 
+    createBoard(false);
+}
+
+class Board {
+    constructor(game) {
+        this.element = document.createElement("div");
+        this.element.classList.add("board");
+        this.element.setAttribute("id","board");
+
+        this.game = game;
+
+        this.configurations = getConfigurations();
+
+        this.grid = new Grid(this.configurations);
+
+        this.element.appendChild(this.grid.element);
+
+        this.updateHTML();
+    }
+
+    updateHTML() { this.grid.updateHTML(); }
+
+    addToContainer() {
+        let container = document.getElementById("board-container");
+        container.appendChild(this.element);
+    }
+
+    disable_events() {
+        for (let i = 0; i < this.configurations.hole_number; i++) {
+            document.getElementById(i).onclick = null;
+        }
+    }
+
+    enable_events() {
         for (let i = 0; i < getConfigurations().hole_number; i++) {
-            if (document.getElementById('hole-'+i).getElementsByClassName('seed').length > 0) return true;
-        }
-    } else {
-        for (let i = parseInt(getConfigurations().hole_number) * 2; i > getConfigurations().hole_number; i -= 1) {
-            if (document.getElementById('hole-'+i).getElementsByClassName('seed').length > 0) return true;
+            document.getElementById(i).onclick = function() { move(i); }
         }
     }
-    return false;
-}
 
-function getOppositeHole(i) {
-    return document.getElementById('hole-'+(parseInt(getConfigurations().hole_number) * 2 - i))
-}
-
-function disable_events() {
-    for (let i = 0; i < getConfigurations().hole_number; i++) {
-        document.getElementById('hole-'+i).onclick=null;
+    setGame(game) {
+        this.game = game;
     }
-}
 
-function enable_events() {
-    for (let i = 0; i < getConfigurations().hole_number; i++) {
-        document.getElementById('hole-'+i).onclick= function() { move(i); }
-    }
-}
-
-function move(i) {
-    if (!game) return;
-    let hole = document.getElementById('hole-'+i);
-    let seeds = hole.getElementsByClassName('seed');
-    if (seeds.length == 0) return;
-    while (seeds.length > 0) {
-        if (i >= getConfigurations().hole_number * 2) {
-            i = 0;
-        } else { i++; }
-        nexthole = document.getElementById('hole-'+ i);
-        nexthole.appendChild(seeds[0]);
-        nexthole.parentElement.getElementsByClassName('number')[0].innerHTML = nexthole.getElementsByClassName('seed').length;
-    }
-    
-    hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-    if (nexthole.id === 'hole-'+getConfigurations().hole_number) { 
-        is_moving = false; 
-        return; 
-    } else if (i < getConfigurations().hole_number && nexthole.getElementsByClassName('seed').length === 1) {
-        let my_points = document.getElementById('hole-'+ getConfigurations().hole_number);
-        my_points.appendChild(nexthole.getElementsByClassName('seed')[0]);
-        nexthole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-        let opposite_hole = getOppositeHole(i);
-        let opposite_seeds = opposite_hole.getElementsByClassName('seed');
-        while (opposite_seeds.length > 0) {
-            my_points.appendChild(opposite_seeds[0]);
+    checkPossibilities(player) {
+        let holes = this.getHoles();
+        for (let i = 0; i < holes.length; i++) {
+            if ((player === 1) ? !holes[i].opponent : holes[i].opponent && holes[i].getPoints() > 0) return true;
         }
-        opposite_hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-        my_points.parentElement.getElementsByClassName('number')[0].innerHTML = my_points.getElementsByClassName('seed').length;
-    } 
-    disable_events();
-    setTimeout(function(){ moveRamdom();}, 1000);
+        return false;
+    }
+
+    getHole(id) {
+        return this.grid.getHole(id);
+    }
+
+    getHoles() {
+        return this.grid.getHoles();
+    }
+
+    getHolesPoints() {
+        return this.grid.getHolesPoints();
+    }
+
+    getOppositeID(i) {
+        return parseInt(getConfigurations().hole_number) * 2 - i;
+    }
+
+    myMove(id) {
+        if (!this.game) return;
+
+        let hole = this.getHole(id);
+        let nexthole;
+        
+        if (hole.getPoints() == 0) return;
+        
+        while (hole.getSeeds().length > 0) {
+            if (id >= this.configurations.hole_number * 2) {
+                id = 0;
+            } else { id++; }
+
+            nexthole = this.getHole(id);
+            nexthole.addSeed( hole.getSeeds()[0] );
+            hole.removeFirstSeed();
+        }
+        
+        if (id < this.configurations.hole_number && nexthole.getPoints() === 1) { 
+            this.grid.addAllSeedsToPoints(1,id);
+            this.grid.addAllSeedsToPoints(1, this.getOppositeID(id)); 
+        } 
+
+        this.updateHTML();
+        
+        if (id === parseInt(this.configurations.hole_number)) return;
+
+        this.disable_events();
+        setTimeout(() => { this.moveRamdom(); }, 1000);
+    }
+
+    opponentMove(id) {
+        if (!this.game) return;
+
+        let hole = this.getHole(id);
+        let nexthole;
+        
+        if (hole.getPoints() == 0) return;
+        
+        while (hole.getSeeds().length > 0) {
+            if (id >= getConfigurations().hole_number * 2 + 1) {
+                id = 0;
+            } else if (id == getConfigurations().hole_number - 1) {
+                id += 2;
+            } else { id++; }
+
+            nexthole = this.getHole(id);
+            nexthole.addSeed( hole.getSeeds()[0] );
+            hole.removeFirstSeed();
+        }
+        
+        if (id > this.configurations.hole_number && nexthole.getPoints() === 1) { 
+            this.grid.addAllSeedsToPoints(2,id);
+            this.grid.addAllSeedsToPoints(2, this.getOppositeID(id)); 
+        } 
+
+        this.updateHTML();
+        
+        if (id !== (parseInt(this.configurations.hole_number) * 2 + 1)) {
+            if (!this.checkPossibilities(1)) { 
+                this.quit_game(); 
+            } else { this.enable_events(); }
+            return;
+        }
+
+        setTimeout(function() { this.moveRamdom(); }, 1000);
+    }
+
+    moveRamdom() {
+        if (!this.checkPossibilities(2)) { this.quit_game(); return; }
+        let i = Math.floor(Math.random() * parseInt(this.configurations.hole_number)) + parseInt(this.configurations.hole_number) + 1;
+        let hole = this.getHole(i);
+        while (hole.getPoints() == 0) {
+            i = Math.floor(Math.random() * this.configurations.hole_number) + parseInt(this.configurations.hole_number) + 1;
+            hole = this.getHole(i);
+        }
+        this.opponentMove(i);
+    }
+
 }
 
-function moveRamdom() {
-    if (!game) return;
-    if (!checkPossibilities(2)) { quit_game(); return; }
-    let i = Math.floor(Math.random() * parseInt(getConfigurations().hole_number)) + parseInt(getConfigurations().hole_number) + 1;
-    let hole = document.getElementById('hole-'+i);
-    let seeds = hole.getElementsByClassName('seed');
-    let nexthole = null;
-    while (seeds.length == 0) {
-        i = Math.floor(Math.random() * getConfigurations().hole_number) + parseInt(getConfigurations().hole_number) + 1;
-        hole = document.getElementById('hole-'+i);
-        seeds = hole.getElementsByClassName('seed');
-    }
-    while (seeds.length > 0) {
-        if (i >= getConfigurations().hole_number * 2 + 1) {
-            i = 0;
-        } else if (i == getConfigurations().hole_number) {
-            i += 2;
-        }
-        else { i++; }
-        nexthole = document.getElementById('hole-'+ i);
-        nexthole.appendChild(seeds[0]);
-        nexthole.parentElement.getElementsByClassName('number')[0].innerHTML = nexthole.getElementsByClassName('seed').length;
-    }
-    hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
+class Grid {
+    constructor(configurations) {
+        this.element = document.createElement("div");
+        this.element.classList.add("grid-container");
 
-    if (nexthole.id === 'hole-'+ (getConfigurations().hole_number * 2 + 1)) { 
-        setTimeout(function() {
-             if (checkPossibilities(2)) { moveRamdom(); }
-             else { quit_game(); } 
-            }, 1000);
-    } else if (i > getConfigurations().hole_number && nexthole.getElementsByClassName('seed').length === 1 ) {
-        let my_points = document.getElementById('hole-'+ (parseInt(getConfigurations().hole_number) * 2 + 1));
-        my_points.appendChild(nexthole.getElementsByClassName('seed')[0]);
-        nexthole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-        let opposite_hole = getOppositeHole(i);
-        let opposite_seeds = opposite_hole.getElementsByClassName('seed');
-        while (opposite_seeds.length > 0) {
-            my_points.appendChild(opposite_seeds[0]);
+        this.configurations = configurations;
+
+        this.element.style.gridTemplateColumns = "repeat("+(parseInt(configurations.hole_number) + 2)+", 1fr)";
+
+        this.containerPoints1 = new HolePointsContainer((configurations.hole_number * 2 + 1),1);
+        this.containerPoints2 = new HolePointsContainer((parseInt(configurations.hole_number)),(parseInt(configurations.hole_number) + 2));
+
+        this.element.appendChild(this.containerPoints1.element);
+        this.element.appendChild(this.containerPoints2.element);
+        
+        this.holePointsContainer = [this.containerPoints1, this.containerPoints2];
+        this.holeContainers = [this.containerPoints1, this.containerPoints2];
+
+        for (let i = this.configurations.hole_number * 2; i > this.configurations.hole_number; i--) {
+            let holeContainer = new HoleContainer(i,false,this.configurations)
+            this.element.appendChild(holeContainer.element);
+            this.holeContainers.push(holeContainer);
         }
-        opposite_hole.parentElement.getElementsByClassName('number')[0].innerHTML = '0';
-        my_points.parentElement.getElementsByClassName('number')[0].innerHTML = my_points.getElementsByClassName('seed').length;
-        enable_events();
-    } else {
-        enable_events();
+
+        for (let i = 0; i < configurations.hole_number; i++) {
+            let holeContainer = new HoleContainer(i,true,this.configurations)
+            this.element.appendChild(holeContainer.element);
+            this.holeContainers.push(holeContainer);
+        }
     }
-    if (!checkPossibilities(1)) {quit_game(); return; }
+
+    getHoles() {
+        return this.holeContainers;
+    }
+
+    getHolesPoints() {
+        return this.holePointsContainer;
+    }
+
+    getHole(id) {
+        for (let i = 0; i < this.holeContainers.length; i++) {
+            if (this.holeContainers[i].getID() == id) return this.holeContainers[i];
+        }
+    }
+
+    updateHTML() {
+        for (let i = 0; i < this.holeContainers.length; i++) {
+            this.holeContainers[i].updateHTML();
+        }
+    }
+
+    addAllSeedsToPoints(player, id) {
+        let hole = this.getHole(id);
+        let holePoints = this.getHole((player == 1) ? this.configurations.hole_number : (this.configurations.hole_number * 2 + 1))
+        while (hole.getSeeds().length > 0) {
+            holePoints.addSeed( hole.getSeeds()[0] );
+            hole.removeFirstSeed();
+        }
+    }
 }
 
-function moveBestPlay() {
-    let best_move = 0;
-    let best_points = 0;
-    for (let i = parseInt(getConfigurations().hole_number) * 2; i > getConfigurations().hole_number; i -= 1) {
-        if (document.getElementById('hole-'+i).getElementsByClassName('seed').length > 0) {
-            let points = getPoints('hole-'+i);
-            if (points > best_points) {
-                best_points = points;
-                best_move = i;
-            }
+class HolePointsContainer {
+    constructor(id,box) {
+        this.element = document.createElement('div');
+        this.element.classList.add("box");
+        this.element.classList.add("center");
+        this.element.style.setProperty("--hole_number",box);
+
+        this.holePoints = new HolePoints(id);
+        this.element.appendChild(this.holePoints.element);
+
+        this.points = new Points();
+        this.element.appendChild(this.points.element);
+    }
+    getID() { return this.holePoints.getID(); }
+
+    getPoints() { return this.points.getPoints(); }
+
+    addSeed(seed) { this.holePoints.addSeed(seed); this.points.addPoint(); }
+
+    getSeeds() { return this.holePoints.getSeeds(); }
+
+    updateHTML() { this.holePoints.updateHTML(); this.points.updateHTML(); }
+}
+
+class HolePoints {
+    constructor(id) {
+        this.element = document.createElement('div');
+        this.element.classList.add("hole-points");
+        this.element.setAttribute("id",id);
+
+        this.id = id;
+
+        this.seeds = [];
+    }
+
+    getSeeds() { return this.seeds; }
+
+    getID() { return this.id; }
+
+    addSeed(seed) { this.seeds.push(seed);  }
+
+    updateHTML() {
+        this.element.innerHTML = null;
+        for (let i = 0; i < this.seeds.length; i++) {
+            this.element.appendChild(this.seeds[i].element);
         }
     }
 }
 
-function getPoints(id) {
+class HoleContainer {
+    constructor(id, move, configurations) {
+        this.element = document.createElement('div');
+        this.element.classList.add("center");
 
+        this.configurations = configurations;
+
+        this.opponent = (id < configurations.hole_number) ? true : false;
+
+        this.hole = new Hole(id, move, configurations);
+        this.element.appendChild(this.hole.element);
+
+        this.points = new Points();
+        this.element.appendChild(this.points.element);
+
+        this.points.setPoints(configurations.seed_number);
+    }
+
+    getID() { return this.hole.getID(); }
+
+    getPoints() { return this.points.getPoints(); }
+
+    getSeeds() { return this.hole.getSeeds(); }
+
+    removeFirstSeed() { this.hole.removeFirstSeed(); this.points.removePoint(); }
+
+    addSeed(seed) { this.hole.addSeed(seed); this.points.addPoint(); }
+
+    updateHTML() { this.hole.updateHTML(); this.points.updateHTML(); }
+}
+
+class Hole {
+    constructor(id, move, configurations) {
+        this.element = document.createElement("button");
+        this.element.classList.add("hole");
+        this.element.setAttribute("id",id);
+        this.element.setAttribute("onclick","move("+id+")");
+
+        this.id = id;
+
+        this.configurations = configurations;
+
+        this.seeds = [];
+
+        for (let i = 0; i < configurations.seed_number; i++) {
+            let seed = new Seed();
+            this.seeds.push(seed)
+            this.element.appendChild(seed.element);
+        }
+    }
+
+    getID() { return this.id; }
+
+    getSeeds() { return this.seeds; }
+
+    addSeed(seed) { this.seeds.push(seed); }
+
+    removeFirstSeed() { this.seeds.shift(); }
+
+    updateHTML() {
+        this.element.innerHTML = null;
+        for (let i = 0; i < this.seeds.length; i++) {
+            this.element.appendChild(this.seeds[i].element);
+        }
+    }
+}
+
+class Seed {
+    constructor() {
+        this.element = document.createElement('div');
+        this.element.classList.add("seed");
+
+        this.element.style.top = 20 + Math.floor(Math.random() * 50) + "%";
+        this.element.style.left = 20 + Math.floor(Math.random() * 50) +"%";
+        this.element.style.transform = 'rotate('+Math.floor(Math.random() * 360)+'deg)';
+    }
+}
+
+class Points {
+    constructor() {
+        this.element = document.createElement('div');
+        this.element.classList.add("number");
+        this.points = 0;
+        this.element.innerHTML= this.points;
+    }
+
+    getPoints() {
+        return this.points;
+    }
+
+    setPoints(points) {
+        this.points = points
+    }
+
+    updateHTML() { this.element.innerHTML= this.points; }
+
+    addPoint() { this.points++; }
+
+    removePoint() { this.points--; }
 }
 
 function getConfigurations() {
@@ -256,6 +408,20 @@ function getConfigurations() {
     return c;
 }
 
-window.onload = function() { 
-    createBoard();
+function closePopUps() {
+    for (let i = 0; i < pop_ups.length; i++) {
+        document.getElementById(pop_ups[i]).style.display = 'none';
+    }
 }
+
+function displayFlex(s) {
+    if (s === "configuration" && board.game) { return; }
+    if (document.getElementById(s).style.display == 'flex') {
+        document.getElementById(s).style.display = 'none';
+    } else {
+        closePopUps();
+        document.getElementById(s).style.display = 'flex'
+    }
+}
+
+
