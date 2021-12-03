@@ -11,19 +11,25 @@ function createBoard(game) {
 
 function start_game() {
     closePopUps();
-    game = true;
     board.element.remove();
     createBoard(true);
     document.getElementById("quit").style.display="flex";
     document.getElementById("play").style.display="none";
 
-    if (board.configurations.first == "computer" && board.game){
+    if (board.getConfigurations().first == "computer" && board.game){
         board.disable_events();
-        setTimeout(function(){ moveRamdom();}, 1000);
+        setTimeout(() => {
+            if (board.getConfigurations().difficulty == "hard") {
+                let board_array = board.getBoardArray();
+                board.opponentMove(board.getOpponentBestMove(board_array,board_array[(this.configurations.hole_number * 2 + 1)])[1]);
+            } else {
+                board.moveRamdom();
+            }
+        }, 1000);
     }
 }
 
-function quit_game() {
+function quitGame() {
     board.setGame(false);
     document.getElementById("play").style.display="flex";
     document.getElementById("quit").style.display="none";
@@ -54,6 +60,8 @@ class Board {
         this.updateHTML();
     }
 
+    getConfigurations() { return this.configurations; }
+
     updateHTML() { this.grid.updateHTML(); }
 
     addToContainer() {
@@ -80,9 +88,27 @@ class Board {
     checkPossibilities(player) {
         let holes = this.getHoles();
         for (let i = 0; i < holes.length; i++) {
-            if ((player === 1) ? !holes[i].opponent : holes[i].opponent && holes[i].getPoints() > 0) return true;
+            if (!(holes[i].getID() == this.configurations.hole_number || holes[i].getID() == this.configurations.hole_number * 2 + 1)) {
+                if (((player === 1) ? !holes[i].opponent : holes[i].opponent) && holes[i].getPoints() > 0) { return true; }
+            }
         }
         return false;
+    }
+
+    getPossibilities(player,board) {
+        let holes = [];
+        for (let i = 0; i < board.length; i++) {
+            if (player === 1) {
+                if (i < this.configurations.hole_number && board[i] > 0) {
+                    holes.push(i);
+                }
+            } else {
+                if (i != (this.configurations.hole_number * 2 + 1) && i > this.configurations.hole_number && board[i] > 0) {
+                    holes.push(i);
+                }
+            }
+        }
+        return holes;
     }
 
     getHole(id) {
@@ -99,6 +125,10 @@ class Board {
 
     getOppositeID(i) {
         return parseInt(getConfigurations().hole_number) * 2 - i;
+    }
+
+    getOpponentPoints() {
+        return this.grid.getOpponentPoints();
     }
 
     myMove(id) {
@@ -125,16 +155,27 @@ class Board {
         } 
 
         this.updateHTML();
-        
-        if (id === parseInt(this.configurations.hole_number)) return;
+        if (id === this.configurations.hole_number) {
+            if (!this.checkPossibilities(1)) { quitGame(); }
+            return;
+        }
 
         this.disable_events();
-        setTimeout(() => { this.moveRamdom(); }, 1000);
+
+        if (this.checkPossibilities(2)) {
+            setTimeout(() => { 
+                if (this.configurations.difficulty == "hard") {
+                    let board_array = this.getBoardArray();
+                    this.opponentMove(this.getOpponentBestMove(board_array,board_array[(this.configurations.hole_number * 2 + 1)])[1]);
+                } else {
+                    this.moveRamdom();
+                }
+            }, 1000);
+        } else { quitGame(); }
     }
 
     opponentMove(id) {
         if (!this.game) return;
-
         let hole = this.getHole(id);
         let nexthole;
         
@@ -152,7 +193,7 @@ class Board {
             hole.removeFirstSeed();
         }
         
-        if (id > this.configurations.hole_number && nexthole.getPoints() === 1) { 
+        if (id > this.configurations.hole_number && id < (this.configurations.hole_number * 2 + 1) && nexthole.getPoints() === 1) { 
             this.grid.addAllSeedsToPoints(2,id);
             this.grid.addAllSeedsToPoints(2, this.getOppositeID(id)); 
         } 
@@ -161,16 +202,50 @@ class Board {
         
         if (id !== (parseInt(this.configurations.hole_number) * 2 + 1)) {
             if (!this.checkPossibilities(1)) { 
-                this.quit_game(); 
+                quitGame(); 
             } else { this.enable_events(); }
             return;
         }
+        if (this.checkPossibilities(2)) {
+            setTimeout(() => { 
+                if (this.configurations.difficulty == "hard") {
+                    let board_array = this.getBoardArray();
+                    this.opponentMove(this.getOpponentBestMove(board_array,board_array[(this.configurations.hole_number * 2 + 1)])[1]);
+                } else {
+                    this.moveRamdom();
+                }
+            }, 1000);
+        } else { quitGame(); }
+    }
 
-        setTimeout(function() { this.moveRamdom(); }, 1000);
+    opponentMoveArray(id,board_array,init_points) {
+        let hole = id;
+        
+        while (board_array[hole] > 0) {
+            if (id >= this.configurations.hole_number * 2 + 1) {
+                id = 0;
+            } else if (id == this.configurations.hole_number - 1) {
+                id += 2;
+            } else { id++; }
+
+            board_array[id]++;
+            board_array[hole]--;
+        }
+        
+        if (id > this.configurations.hole_number && id < (this.configurations.hole_number * 2 + 1) && board_array[id] === 1) { 
+            board_array[this.configurations.hole_number * 2 + 1] += board_array[id] + board_array[this.getOppositeID(id)]
+            board_array[id] = 0;
+            board_array[this.getOppositeID(id)] = 0;
+        } 
+        if (id !== (this.configurations.hole_number * 2 + 1)) {
+            return board_array;
+        }
+
+        return this.getOpponentBestMove(board_array,init_points)[0];
     }
 
     moveRamdom() {
-        if (!this.checkPossibilities(2)) { this.quit_game(); return; }
+        if (!this.checkPossibilities(2)) { quitGame(); return; }
         let i = Math.floor(Math.random() * parseInt(this.configurations.hole_number)) + parseInt(this.configurations.hole_number) + 1;
         let hole = this.getHole(i);
         while (hole.getPoints() == 0) {
@@ -180,6 +255,47 @@ class Board {
         this.opponentMove(i);
     }
 
+    getOpponentBestMove(board_array,init_points) {
+        let holes = this.getPossibilities(2,board_array);
+        if (holes.length === 0) { return [board_array,0]; }
+        if (holes.length === 1) { return [board_array,holes[0]]; }
+
+        let holeID = 0;
+        let bestPoints = 0;
+        let newBoard = board_array;
+
+        for (let i = 0; i < holes.length; i++) {
+            let clone = [].concat(board_array);
+            clone = this.opponentMoveArray(holes[i], clone,init_points);
+            if (clone[this.configurations.hole_number * 2 + 1] - init_points > bestPoints) {
+                bestPoints = clone[this.configurations.hole_number * 2 + 1];
+                newBoard = clone;
+                holeID = holes[i];
+            }
+        }
+        return [newBoard,holeID];
+    }
+
+    getMovePoints(id, board_array,init_points) {
+        board_array = this.opponentMoveArray(id, board_array,init_points);
+
+        let final_points = board_array[this.configurations.hole_number * 2 + 1];
+
+        return final_points - init_points;
+    }
+
+    getBoardArray() {
+        let res = [];
+        let holes = this.getHoles();
+        holes.sort(function (a,b) {
+            return a.getID() - b.getID();
+        });
+
+        for (let i = 0; i < holes.length; i++) {
+            res.push(holes[i].getPoints());
+        }
+        return res;
+    }
 }
 
 class Grid {
@@ -191,14 +307,14 @@ class Grid {
 
         this.element.style.gridTemplateColumns = "repeat("+(parseInt(configurations.hole_number) + 2)+", 1fr)";
 
-        this.containerPoints1 = new HolePointsContainer((configurations.hole_number * 2 + 1),1);
-        this.containerPoints2 = new HolePointsContainer((parseInt(configurations.hole_number)),(parseInt(configurations.hole_number) + 2));
+        this.myContainerPoints = new HolePointsContainer((configurations.hole_number * 2 + 1),1);
+        this.opponentContainerPoints = new HolePointsContainer((parseInt(configurations.hole_number)),(parseInt(configurations.hole_number) + 2));
 
-        this.element.appendChild(this.containerPoints1.element);
-        this.element.appendChild(this.containerPoints2.element);
+        this.element.appendChild(this.myContainerPoints.element);
+        this.element.appendChild(this.opponentContainerPoints.element);
         
-        this.holePointsContainer = [this.containerPoints1, this.containerPoints2];
-        this.holeContainers = [this.containerPoints1, this.containerPoints2];
+        this.holePointsContainer = [this.myContainerPoints, this.opponentContainerPoints];
+        this.holeContainers = [this.myContainerPoints, this.opponentContainerPoints];
 
         for (let i = this.configurations.hole_number * 2; i > this.configurations.hole_number; i--) {
             let holeContainer = new HoleContainer(i,false,this.configurations)
@@ -240,6 +356,10 @@ class Grid {
             holePoints.addSeed( hole.getSeeds()[0] );
             hole.removeFirstSeed();
         }
+    }
+
+    getOpponentPoints() {
+        return this.opponentContainerPoints.getPoints();
     }
 }
 
@@ -299,7 +419,7 @@ class HoleContainer {
 
         this.configurations = configurations;
 
-        this.opponent = (id < configurations.hole_number) ? true : false;
+        this.opponent = (id > configurations.hole_number) ? true : false;
 
         this.hole = new Hole(id, move, configurations);
         this.element.appendChild(this.hole.element);
@@ -307,7 +427,7 @@ class HoleContainer {
         this.points = new Points();
         this.element.appendChild(this.points.element);
 
-        this.points.setPoints(configurations.seed_number);
+        this.points.setPoints(parseInt(configurations.seed_number));
     }
 
     getID() { return this.hole.getID(); }
@@ -328,7 +448,9 @@ class Hole {
         this.element = document.createElement("button");
         this.element.classList.add("hole");
         this.element.setAttribute("id",id);
-        this.element.setAttribute("onclick","move("+id+")");
+        if (move) {
+            this.element.setAttribute("onclick","move("+id+")");
+        }
 
         this.id = id;
 
@@ -394,16 +516,24 @@ class Points {
 }
 
 function getConfigurations() {
-    let options = document.getElementsByName('radio2');
-    let first = options[0];
-    for (let i = 0; i < options.length; i++) {
-        if (options[i].checked)
-            first = options[i];
+    let options2 = document.getElementsByName('radio2');
+    let first = options2[0];
+    for (let i = 0; i < options2.length; i++) {
+        if (options2[i].checked)
+            first = options2[i];
+    }
+
+    let options3 = document.getElementsByName('radio3');
+    let difficulty = options3[0];
+    for (let i = 0; i < options3.length; i++) {
+        if (options3[i].checked)
+            difficulty = options3[i];
     }
     let c = {   
-        hole_number: document.getElementById("hole_number").value,
-        seed_number: document.getElementById("seed_number").value,
-        first: first.id
+        hole_number: parseInt(document.getElementById("hole_number").value),
+        seed_number: parseInt(document.getElementById("seed_number").value),
+        first: first.id,
+        difficulty: difficulty.id
     };
     return c;
 }
