@@ -31,6 +31,7 @@ function start_game() {
 
 function quitGame() {
     board.setGame(false);
+    winner = board.getWinner();
     document.getElementById("play").style.display="flex";
     document.getElementById("quit").style.display="none";
 }
@@ -83,6 +84,40 @@ class Board {
 
     setGame(game) {
         this.game = game;
+        if (!this.game) { this.finishGame(); }
+    }
+
+    finishGame() {
+        let holes = this.getHoles();
+        for (let i = 0; i < holes.length; i++) {
+            if (!(holes[i].getID() == this.configurations.hole_number || holes[i].getID() == this.configurations.hole_number * 2 + 1) && holes[i].getPoints() > 0) {
+                if (i < this.configurations.hole_number) {
+                    this.grid.addAllSeedsToPoints(1,holes[i].getID());
+                } else {
+                    this.grid.addAllSeedsToPoints(2,holes[i].getID());
+                }
+            }
+        }
+        this.updateHTML();
+    }
+
+    getWinner() {
+        let holes = this.getHolesPoints();
+        
+        if (holes[0].getID() == this.configurations.hole_number) {
+            if (holes[0].getPoints() > holes[1].getPoints()) { 
+                return 1;
+            } else if (holes[0].getPoints() < holes[1].getPoints()) {
+                return 2;
+            }
+        } else {
+            if (holes[0].getPoints() > holes[1].getPoints()) { 
+                return 2;
+            } else if (holes[0].getPoints() < holes[1].getPoints()) {
+                return 1;
+            }
+        }
+        return -1; //draw
     }
 
     checkPossibilities(player) {
