@@ -1,7 +1,7 @@
 //import { Board } from "./classes.js"
 
 var board;
-var pop_ups = ['configuration','rules','classifications'];
+var pop_ups = ['configuration','rules','classifications','message'];
 
 
 function createBoard(game) {
@@ -21,7 +21,7 @@ function start_game() {
         setTimeout(() => {
             if (board.getConfigurations().difficulty == "hard") {
                 let board_array = board.getBoardArray();
-                board.opponentMove(board.getOpponentBestMove(board_array,board_array[(this.configurations.hole_number * 2 + 1)])[1]);
+                board.opponentMove(board.getOpponentBestMove(board_array,board_array[(board.configurations.hole_number * 2 + 1)])[1]);
             } else {
                 board.moveRamdom();
             }
@@ -30,10 +30,22 @@ function start_game() {
 }
 
 function quitGame() {
-    board.setGame(false);
-    winner = board.getWinner();
+    if (board.game == false) {
+        let winner = board.getWinner();
+        showMessage("PLAYER" + winner + "WON!");
+    } else {
+        board.disable_events();
+        board.setGame(false);
+        showMessage("PLAYER QUIT");
+    }
     document.getElementById("play").style.display="flex";
     document.getElementById("quit").style.display="none";
+}
+
+function showMessage(s) {
+    let message = document.getElementById('message-text');
+    message.innerHTML = s;
+    displayFlex('message');
 }
 
 function move(id) {
@@ -59,6 +71,11 @@ class Board {
         this.element.appendChild(this.grid.element);
 
         this.updateHTML();
+    }
+
+    endGame() {
+        this.game = false;
+        quitGame();
     }
 
     getConfigurations() { return this.configurations; }
@@ -191,7 +208,7 @@ class Board {
 
         this.updateHTML();
         if (id === this.configurations.hole_number) {
-            if (!this.checkPossibilities(1)) { quitGame(); }
+            if (!this.checkPossibilities(1)) { this.endGame(); }
             return;
         }
 
@@ -206,7 +223,7 @@ class Board {
                     this.moveRamdom();
                 }
             }, 1000);
-        } else { quitGame(); }
+        } else { this.endGame(); }
     }
 
     opponentMove(id) {
@@ -237,7 +254,7 @@ class Board {
         
         if (id !== (parseInt(this.configurations.hole_number) * 2 + 1)) {
             if (!this.checkPossibilities(1)) { 
-                quitGame(); 
+                this.endGame(); 
             } else { this.enable_events(); }
             return;
         }
@@ -250,7 +267,7 @@ class Board {
                     this.moveRamdom();
                 }
             }, 1000);
-        } else { quitGame(); }
+        } else { this.endGame(); }
     }
 
     opponentMoveArray(id,board_array,init_points) {
@@ -280,7 +297,7 @@ class Board {
     }
 
     moveRamdom() {
-        if (!this.checkPossibilities(2)) { quitGame(); return; }
+        if (!this.checkPossibilities(2)) { this.endGame(); return; }
         let i = Math.floor(Math.random() * parseInt(this.configurations.hole_number)) + parseInt(this.configurations.hole_number) + 1;
         let hole = this.getHole(i);
         while (hole.getPoints() == 0) {
