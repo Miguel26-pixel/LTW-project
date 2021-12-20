@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="mancala.css">
 
     <script src="mancala.js"></script>
+    <script src="api.js"></script>
 
 </head>
 <body>
@@ -92,7 +93,7 @@
 
     <div class="header">
         <div class="navbar-logo">
-            <button type="button" class="logo-mancala" >Mancala!</button>
+            <button type="button" class="logo-mancala">Mancala!</button>
             <div class="logo-slogan">play and enjoy</div>
         </div>
 
@@ -100,7 +101,7 @@
             <button  type="button" onclick="displayFlex('rules')" class="option center">
                 rules
             </button>
-            <button  type="button" onclick="displayFlex('classifications')" class="option center">
+            <button  type="button" onclick="displayFlex('classifications'); getClassifications();" class="option center">
                 classifications
             </button>
             <button  type="button" onclick="displayFlex('configuration')" class="option center">

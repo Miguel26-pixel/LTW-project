@@ -1,12 +1,48 @@
-//import { Board } from "./classes.js"
-
 var board;
 var pop_ups = ['configuration','rules','classifications','message'];
+var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
 
+window.onload = function() { 
+    createBoard(false);
+}
 
-function createBoard(game) {
-    board = new Board(game);
-    board.addToContainer();
+function getConfigurations() {
+    let options2 = document.getElementsByName('radio2');
+    let first = options2[0];
+    for (let i = 0; i < options2.length; i++) {
+        if (options2[i].checked)
+            first = options2[i];
+    }
+
+    let options3 = document.getElementsByName('radio3');
+    let difficulty = options3[0];
+    for (let i = 0; i < options3.length; i++) {
+        if (options3[i].checked)
+            difficulty = options3[i];
+    }
+    let c = {   
+        hole_number: parseInt(document.getElementById("hole_number").value),
+        seed_number: parseInt(document.getElementById("seed_number").value),
+        first: first.id,
+        difficulty: difficulty.id
+    };
+    return c;
+}
+
+function closePopUps() {
+    for (let i = 0; i < pop_ups.length; i++) {
+        document.getElementById(pop_ups[i]).style.display = 'none';
+    }
+}
+
+function displayFlex(s) {
+    if (s === "configuration" && board.game) { return; }
+    if (document.getElementById(s).style.display == 'flex') {
+        document.getElementById(s).style.display = 'none';
+    } else {
+        closePopUps();
+        document.getElementById(s).style.display = 'flex'
+    }
 }
 
 function start_game() {
@@ -29,6 +65,15 @@ function start_game() {
     }
 }
 
+function createBoard(game) {
+    board = new Board(game);
+    board.addToContainer();
+}
+
+function move(id) {
+    board.myMove(id)
+}
+
 function quitGame() {
     if (board.game == false) {
         let winner = board.getWinner();
@@ -46,14 +91,6 @@ function showMessage(s) {
     let message = document.getElementById('message-text');
     message.innerHTML = s;
     displayFlex('message');
-}
-
-function move(id) {
-    board.myMove(id)
-}
-
-window.onload = function() { 
-    createBoard(false);
 }
 
 class Board {
@@ -567,43 +604,61 @@ class Points {
     removePoint() { this.points--; }
 }
 
-function getConfigurations() {
-    let options2 = document.getElementsByName('radio2');
-    let first = options2[0];
-    for (let i = 0; i < options2.length; i++) {
-        if (options2[i].checked)
-            first = options2[i];
-    }
+//API
 
-    let options3 = document.getElementsByName('radio3');
-    let difficulty = options3[0];
-    for (let i = 0; i < options3.length; i++) {
-        if (options3[i].checked)
-            difficulty = options3[i];
-    }
-    let c = {   
-        hole_number: parseInt(document.getElementById("hole_number").value),
-        seed_number: parseInt(document.getElementById("seed_number").value),
-        first: first.id,
-        difficulty: difficulty.id
+function getClassifications() {
+    let options = {
+        method: 'POST',
+        body: JSON.stringify( {} )
     };
-    return c;
-}
 
-function closePopUps() {
-    for (let i = 0; i < pop_ups.length; i++) {
-        document.getElementById(pop_ups[i]).style.display = 'none';
-    }
-}
+    fetch(server+'/ranking',options)
+        .then(response => response.json())
+        .then(function(obj) {
+            if ('ranking' in obj) {
+                let ranking = obj.ranking;
+                let table = document.createElement('table');
+                table.style.width = '100%';
 
-function displayFlex(s) {
-    if (s === "configuration" && board.game) { return; }
-    if (document.getElementById(s).style.display == 'flex') {
-        document.getElementById(s).style.display = 'none';
-    } else {
-        closePopUps();
-        document.getElementById(s).style.display = 'flex'
-    }
-}
+                let tr = table.insertRow();
 
+                let properties = {0: 'Nickname', 1: "Victories", 2: "Games"};
+                for (prop in properties) {
+                    let th = document.createElement('th');
+                    th.innerHTML = properties[prop];
+                    tr.appendChild(th);
+                }
+
+                for (let i = 0; i < ranking.length; i++) {
+                    let tr = table.insertRow();
+
+                    let td1 = document.createElement('td');
+                    td1.innerHTML = ranking[i].nick;
+                    tr.appendChild(td1);
+
+                    let td2 = document.createElement('td');
+                    td2.innerHTML = ranking[i].victories;
+                    tr.appendChild(td2);
+
+                    let td3 = document.createElement('td');
+                    td3.innerHTML = ranking[i].games;
+                    tr.appendChild(td3);
+                }
+
+                let classifications = document.getElementById('classifications');
+
+                if (classifications.children.length > 1) {
+                    classifications.removeChild(classifications.lastChild);
+                }
+
+                classifications.appendChild(table);
+
+            } else {
+                console.log(obj.error);
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
 
