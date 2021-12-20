@@ -4,6 +4,7 @@ var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
 
 window.onload = function() { 
     createBoard(false);
+    checkLogin();
 }
 
 function getConfigurations() {
@@ -609,6 +610,7 @@ class Points {
 function getClassifications() {
     let options = {
         method: 'POST',
+        mode: 'cors',
         body: JSON.stringify( {} )
     };
 
@@ -662,3 +664,52 @@ function getClassifications() {
         });
 }
 
+function register(e) {
+    e.preventDefault();
+    let username = document.getElementById('username').value;
+    let password = document.getElementById('password').value;
+    let options = {
+        method: 'POST',
+        body: JSON.stringify( { "nick": username,
+                                "password": password} )
+    };
+    
+    fetch(server+'/register',options)
+        .then(response => response.json())
+        .then(function(obj) {
+            if ('error' in obj) {
+                console.log(obj.error);
+            } else if (Object.getOwnPropertyNames(obj).length == 0) {
+                document.cookie = "nick="+username;
+                document.cookie = "password="+password;
+                checkLogin();
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
+
+function logout() {
+    document.cookie = "nick=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"+password;
+    checkLogin();
+}
+
+function checkLogin() {
+    let cookie = {};
+
+    document.cookie.split(';').forEach(function(el) {
+        let [key,value] = el.split('=');
+        cookie[key.trim()] = value;
+    });
+
+    if ('nick' in cookie) {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('login-dropdown').style.display = 'none';
+        document.getElementById('logout').style.display = 'flex';
+    } else {
+        document.getElementById('logout').style.display = 'none';
+        document.getElementById('login').style.display = 'flex';
+    }
+}
