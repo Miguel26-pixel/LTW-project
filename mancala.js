@@ -8,6 +8,13 @@ window.onload = function() {
 }
 
 function getConfigurations() {
+    let options1 = document.getElementsByName('radio1');
+    let opponent = options1[0];
+    for (let i = 0; i < options1.length; i++) {
+        if (options1[i].checked)
+            opponent = options1[i];
+    }
+
     let options2 = document.getElementsByName('radio2');
     let first = options2[0];
     for (let i = 0; i < options2.length; i++) {
@@ -25,7 +32,8 @@ function getConfigurations() {
         hole_number: parseInt(document.getElementById("hole_number").value),
         seed_number: parseInt(document.getElementById("seed_number").value),
         first: first.id,
-        difficulty: difficulty.id
+        difficulty: difficulty.id,
+        opponent: opponent.id
     };
     return c;
 }
@@ -47,22 +55,27 @@ function displayFlex(s) {
 }
 
 function start_game() {
-    closePopUps();
-    board.element.remove();
-    createBoard(true);
-    document.getElementById("quit").style.display="flex";
-    document.getElementById("play").style.display="none";
+    let configurations = getConfigurations();
+    if (configurations.opponent == 'computer') {
+        closePopUps();
+        board.element.remove();
+        createBoard(true);
+        document.getElementById("quit").style.display="flex";
+        document.getElementById("play").style.display="none";
 
-    if (board.getConfigurations().first == "computer" && board.game){
-        board.disable_events();
-        setTimeout(() => {
-            if (board.getConfigurations().difficulty == "hard") {
-                let board_array = board.getBoardArray();
-                board.opponentMove(board.getOpponentBestMove(board_array,board_array[(board.configurations.hole_number * 2 + 1)])[1]);
-            } else {
-                board.moveRamdom();
-            }
-        }, 1000);
+        if (board.getConfigurations().first == "computer" && board.game){
+            board.disable_events();
+            setTimeout(() => {
+                if (board.getConfigurations().difficulty == "hard") {
+                    let board_array = board.getBoardArray();
+                    board.opponentMove(board.getOpponentBestMove(board_array,board_array[(board.configurations.hole_number * 2 + 1)])[1]);
+                } else {
+                    board.moveRamdom();
+                }
+            }, 1000);
+        }
+    } else {
+        join(configurations);
     }
 }
 
@@ -76,16 +89,22 @@ function move(id) {
 }
 
 function quitGame() {
-    if (board.game == false) {
-        let winner = board.getWinner();
-        showMessage("PLAYER" + winner + "WON!");
+    let configurations = getConfigurations(); 
+    if (configurations.opponent == 'computer') {
+        if (board.game == false) {
+            let winner = board.getWinner();
+            showMessage("PLAYER" + winner + "WON!");
+        } else {
+            board.disable_events();
+            board.setGame(false);
+            showMessage("PLAYER QUIT");
+        }
+        document.getElementById("play").style.display="flex";
+        document.getElementById("quit").style.display="none";
     } else {
-        board.disable_events();
-        board.setGame(false);
-        showMessage("PLAYER QUIT");
+        leave(); 
     }
-    document.getElementById("play").style.display="flex";
-    document.getElementById("quit").style.display="none";
+
 }
 
 function showMessage(s) {
@@ -692,24 +711,92 @@ function register(e) {
 
 function logout() {
     document.cookie = "nick=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"+password;
+    document.cookie = "password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     checkLogin();
 }
 
-function checkLogin() {
-    let cookie = {};
+function getCookies() {
+    let cookies = {};
 
     document.cookie.split(';').forEach(function(el) {
         let [key,value] = el.split('=');
-        cookie[key.trim()] = value;
+        cookies[key.trim()] = value;
     });
 
-    if ('nick' in cookie) {
+    return cookies;
+}
+
+function checkLogin() {
+    let cookies = getCookies();
+
+    if ('nick' in cookies) {
         document.getElementById('login').style.display = 'none';
         document.getElementById('login-dropdown').style.display = 'none';
         document.getElementById('logout').style.display = 'flex';
+        return true;
     } else {
         document.getElementById('logout').style.display = 'none';
         document.getElementById('login').style.display = 'flex';
+        return false;
     }
+}
+
+function join(configurations) {
+    if (!checkLogin()) {
+        alert("You need authentication to play against other person");
+        return;
+    }
+
+    let cookies = getCookies();
+
+    let options = {
+        method: 'POST',
+        body: JSON.stringify( { "nick": cookies['nick'],
+                                "password": cookies['password'],
+                                "group": '7992517bf1692d6b0a1a6140646a0e32bc3dfe20e5c9768448107611bd57c703',
+                                "size": configurations.hole_number,
+                                "initial": configurations.seed_number
+                            } )
+    };
+
+    fetch(server+'/join',options)
+        .then(response => response.json())
+        .then(function(obj) {
+            if ('error' in obj) {
+                console.log(obj.error);
+            } else if ('game' in obj) {
+                document.cookie = "game="+obj['game'];
+                document.getElementById("quit").style.display="flex";
+                document.getElementById("play").style.display="none";
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
+
+function leave() {
+    let cookies = getCookies();
+    let options = {
+        method: 'POST',
+        body: JSON.stringify( { "nick": cookies['nick'],
+                                "password": cookies['password'],
+                                "game": cookies['game']
+                            } )
+    };
+
+    fetch(server+'/leave',options)
+        .then(response => response.json())
+        .then(function(obj) {
+            if ('error' in obj) {
+                console.log(obj.error);
+            } else if (Object.getOwnPropertyNames(obj).length == 0) {
+                document.cookie = "game=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.getElementById("play").style.display="flex";
+                document.getElementById("quit").style.display="none";
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
 }
