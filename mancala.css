@@ -187,7 +187,7 @@ html {
     background-color: rgb(226, 226, 226);
     padding: 10px;
     border-radius: 15px;
-    background-image: url('imgs/wood4.jpg');
+    /*background-image: url('imgs/wood4.jpg');*/
     flex-direction: column;
 }
 

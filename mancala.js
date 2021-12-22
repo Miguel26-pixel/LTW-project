@@ -558,7 +558,8 @@ class Hole {
         this.element.classList.add("hole");
         this.element.setAttribute("id",id);
         if (move) {
-            this.element.setAttribute("onclick","move("+id+")");
+            let func = (configurations.opponent == 'computer') ? "move("+id+")" : "notify("+id+")";
+            this.element.setAttribute("onclick",func);
         }
 
         this.id = id;
@@ -629,7 +630,6 @@ class Points {
 function getClassifications() {
     let options = {
         method: 'POST',
-        mode: 'cors',
         body: JSON.stringify( {} )
     };
 
@@ -766,6 +766,9 @@ function join(configurations) {
                 console.log(obj.error);
             } else if ('game' in obj) {
                 document.cookie = "game="+obj['game'];
+                board.element.remove();
+                createBoard(true);
+                closePopUps();
                 document.getElementById("quit").style.display="flex";
                 document.getElementById("play").style.display="none";
             }
@@ -788,12 +791,36 @@ function leave() {
     fetch(server+'/leave',options)
         .then(response => response.json())
         .then(function(obj) {
+            if ('error' in obj) { console.log(obj.error); }
+
+            document.cookie = "game=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.getElementById("play").style.display="flex";
+            document.getElementById("quit").style.display="none";
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
+}
+
+function notify(id) {
+    let cookies = getCookies();
+    let options = {
+        method: 'POST',
+        body: JSON.stringify( { "nick": cookies['nick'],
+                                "password": cookies['password'],
+                                "game": cookies['game'],
+                                "move": id
+                            } )
+    };
+
+    fetch(server+'/notify',options)
+        .then(response => response.json())
+        .then(function(obj) {
+            console.log(obj);
             if ('error' in obj) {
                 console.log(obj.error);
             } else if (Object.getOwnPropertyNames(obj).length == 0) {
-                document.cookie = "game=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                document.getElementById("play").style.display="flex";
-                document.getElementById("quit").style.display="none";
+                console.log('PASSOU');
             }
         })
         .catch(function(error) {
