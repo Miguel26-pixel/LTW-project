@@ -1,6 +1,7 @@
 var board;
 var pop_ups = ['configuration','rules','classifications','message'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
+var eventUpdate;
 
 window.onload = function() { 
     createBoard(false);
@@ -130,6 +131,54 @@ class Board {
         this.updateHTML();
     }
 
+    update(obj,cookies) {
+        let mySide, opponentSide;
+        
+        for (let side in obj.board.sides) {
+            if (side == cookies['nick']) {
+                mySide = obj.board.sides[side];
+            } else {
+                opponentSide = obj.board.sides[side];
+            }
+        }
+
+        let holes = this.getHoles();
+        holes.sort(function (a,b) {
+            return a.getID() - b.getID();
+        });
+
+
+        for (let i = 0; i < this.configurations.hole_number; i++) {
+            while (holes[i].getPoints() !== mySide.pits[i]) {
+                if (holes[i].getSeeds().length > mySide.pits[i]) {
+                    holes[i].removeFirstSeed();
+                } else {
+                    holes[i].addSeed(new Seed());
+                }
+            }
+        }
+
+        for (let i = 1; i < this.configurations.hole_number + 1; i++) {
+            while (holes[i+this.configurations.hole_number].getPoints() !== opponentSide.pits[i-1]) {
+                if (holes[i+this.configurations.hole_number].getSeeds().length > opponentSide.pits[i-1]) {
+                    holes[i+this.configurations.hole_number].removeFirstSeed();
+                } else {
+                    holes[i+this.configurations.hole_number].addSeed(new Seed());
+                }
+            }
+        }
+
+        while (holes[this.configurations.hole_number].getPoints() < mySide.store) {
+            holes[this.configurations.hole_number].addSeed(new Seed());
+        }
+
+        while (holes[this.configurations.hole_number*2+1].getPoints() < opponentSide.store) {
+            holes[this.configurations.hole_number*2+1].addSeed(new Seed());
+        }
+        
+        this.updateHTML();
+    }
+
     endGame() {
         this.game = false;
         quitGame();
@@ -165,7 +214,7 @@ class Board {
         let holes = this.getHoles();
         for (let i = 0; i < holes.length; i++) {
             if (!(holes[i].getID() == this.configurations.hole_number || holes[i].getID() == this.configurations.hole_number * 2 + 1) && holes[i].getPoints() > 0) {
-                if (i < this.configurations.hole_number) {
+                if (holes[i].getID() < this.configurations.hole_number) {
                     this.grid.addAllSeedsToPoints(1,holes[i].getID());
                 } else {
                     this.grid.addAllSeedsToPoints(2,holes[i].getID());
@@ -771,6 +820,7 @@ function join(configurations) {
                 closePopUps();
                 document.getElementById("quit").style.display="flex";
                 document.getElementById("play").style.display="none";
+                update();
             }
         })
         .catch(function(error) {
@@ -794,8 +844,12 @@ function leave() {
             if ('error' in obj) { console.log(obj.error); }
 
             document.cookie = "game=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            board.disable_events();
+            board.setGame(false);
             document.getElementById("play").style.display="flex";
             document.getElementById("quit").style.display="none";
+
+            closeEvent();
         })
         .catch(function(error) {
             console.log(error);
@@ -803,6 +857,8 @@ function leave() {
 }
 
 function notify(id) {
+    if (!board.game) return;
+
     let cookies = getCookies();
     let options = {
         method: 'POST',
@@ -826,4 +882,28 @@ function notify(id) {
         .catch(function(error) {
             console.log(error);
         });
+}
+
+function update() {
+    let cookies = getCookies();
+    eventUpdate = new EventSource(server+'/update?nick='+cookies['nick']+'&game='+cookies['game']);
+
+    eventUpdate.onmessage = function(event) {
+        let obj = JSON.parse(event.data);
+
+        if ('board' in obj) {
+        board.update(obj,cookies);
+        }
+        if ('winner' in obj) {
+            leave();
+        }
+    }
+
+    eventUpdate.onerror = function() {
+        console.log("Update failed.");
+    };
+}
+
+function closeEvent() {
+    eventUpdate.close();
 }
