@@ -139,6 +139,7 @@ class Board {
                 mySide = obj.board.sides[side];
             } else {
                 opponentSide = obj.board.sides[side];
+                document.getElementById('name-opponent').innerHTML = side;
             }
         }
 
@@ -782,10 +783,13 @@ function checkLogin() {
         document.getElementById('login').style.display = 'none';
         document.getElementById('login-dropdown').style.display = 'none';
         document.getElementById('logout').style.display = 'flex';
+        document.getElementById('name-user').innerHTML = cookies['nick'];
         return true;
     } else {
         document.getElementById('logout').style.display = 'none';
         document.getElementById('login').style.display = 'flex';
+        document.getElementById('name-user').innerHTML = 'GUEST';
+        document.getElementById('name-opponent').innerHTML = 'OPPONENT';
         return false;
     }
 }
@@ -848,6 +852,7 @@ function leave() {
             board.setGame(false);
             document.getElementById("play").style.display="flex";
             document.getElementById("quit").style.display="none";
+            document.getElementById('name-opponent').innerHTML = 'OPPONENT';
 
             closeEvent();
         })
@@ -892,9 +897,10 @@ function update() {
         let obj = JSON.parse(event.data);
 
         if ('board' in obj) {
-        board.update(obj,cookies);
+            board.update(obj,cookies);
         }
         if ('winner' in obj) {
+            showMessage(obj.winner + " WON!");
             leave();
         }
     }

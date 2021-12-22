@@ -31,6 +31,7 @@ html {
 
 .board-container {
     --margin-top: 5%;
+    position: relative;
     height: calc(80vh - 100px);
 }
 
@@ -120,6 +121,26 @@ html {
     border-radius: 50%;
     box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.3);
 }
+
+.name-opponent {
+    margin: 0;
+    width: 100px;
+    overflow: hidden;
+    position: relative;
+    top: calc(50% - 190px);
+    left: calc(50% - 420px);
+}
+
+.name-user {
+    text-align: right;
+    margin: 0;
+    width: 100px;
+    overflow: hidden;
+    position: relative;
+    top: calc(50% + 240px); 
+    left: calc(50% + 340px);
+}
+
 
 .blue-rect {
 
