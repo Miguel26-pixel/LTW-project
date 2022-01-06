@@ -203,6 +203,23 @@ html {
     top: calc(50vh - 300px);
     left: calc(50vw - 350px);
     width: 700px;
+    height: fit-content;
+    z-index: 2;
+    background-color: rgb(226, 226, 226);
+    padding: 10px;
+    border-radius: 15px;
+    /*background-image: url('imgs/wood4.jpg');*/
+    flex-direction: column;
+}
+
+
+.pop-up-rules {
+    margin-top:10%;
+    display: none;
+    position: absolute;
+    top: calc(50vh - 300px);
+    left: calc(50vw - 350px);
+    width: 700px;
     height: 400px;
     z-index: 2;
     background-color: rgb(226, 226, 226);
@@ -211,6 +228,34 @@ html {
     /*background-image: url('imgs/wood4.jpg');*/
     flex-direction: column;
 }
+
+
+#rules{
+    top: -400px;
+    animation: drop 0.7s ease forwards;
+}
+
+#configuration{
+    top: -400px;
+    animation: drop 0.7s ease forwards;
+}
+
+#classifications{
+    top: -500px;
+    animation: drop 0.7s ease forwards;
+}
+
+#login-dropdown{
+    top: -350px;
+    animation: drop 0.7s ease forwards;
+}
+
+@keyframes drop {
+    0%{opacity: 0;}
+    70%{ transform: translateY(450px)}
+    100%{ transform: translateY(430px); opacity: 1;}
+}
+
 
 .option:hover {
     -webkit-animation: barberpole 4s infinite linear;
@@ -315,6 +360,33 @@ input[type=text],input[type=password] {
 }
 }
   
-  
+/*--- table design ----*/
+
+.styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.styled-table thead tr {
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
 
 
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}

@@ -8,6 +8,7 @@ window.onload = function() {
     checkLogin();
 }
 
+
 function getConfigurations() {
     let options1 = document.getElementsByName('radio1');
     let opponent = options1[0];
@@ -690,7 +691,9 @@ function getClassifications() {
                 let ranking = obj.ranking;
                 let table = document.createElement('table');
                 table.style.width = '100%';
+                table.className = 'styled-table';
 
+                table.createTHead();
                 let tr = table.insertRow();
 
                 let properties = {0: 'Nickname', 1: "Victories", 2: "Games"};
@@ -700,21 +703,25 @@ function getClassifications() {
                     tr.appendChild(th);
                 }
 
+                table.createTBody();
+                
                 for (let i = 0; i < ranking.length; i++) {
-                    let tr = table.insertRow();
+                    var tr2 = table.insertRow();
+                    tr2.setAttribute('background', 'imgs/wood5.jpg');
 
                     let td1 = document.createElement('td');
                     td1.innerHTML = ranking[i].nick;
-                    tr.appendChild(td1);
+                    tr2.appendChild(td1);
 
                     let td2 = document.createElement('td');
                     td2.innerHTML = ranking[i].victories;
-                    tr.appendChild(td2);
+                    tr2.appendChild(td2);
 
                     let td3 = document.createElement('td');
                     td3.innerHTML = ranking[i].games;
-                    tr.appendChild(td3);
+                    tr2.appendChild(td3);
                 }
+
 
                 let classifications = document.getElementById('classifications');
 
