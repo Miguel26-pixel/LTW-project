@@ -208,7 +208,6 @@ html {
     background-color: rgb(226, 226, 226);
     padding: 10px;
     border-radius: 15px;
-    /*background-image: url('imgs/wood4.jpg');*/
     flex-direction: column;
 }
 
@@ -314,10 +313,14 @@ input[type=text],input[type=password] {
 
 
 .header button:hover {
-    transform: scale(1.2, 1.2);
+    font-size: 18px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     transition: .3s ease-in-out;
 }
+
+/* .header button span:hover{
+    transform: scale(1.2, 1.2); 
+} */
 
 .header-mancala-logo {
     width: 200px;

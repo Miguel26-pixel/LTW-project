@@ -706,7 +706,7 @@ function getClassifications() {
                 table.createTBody();
                 
                 for (let i = 0; i < ranking.length; i++) {
-                    var tr2 = table.insertRow();
+                    let tr2 = table.insertRow();
                     tr2.setAttribute('background', 'imgs/wood5.jpg');
 
                     let td1 = document.createElement('td');

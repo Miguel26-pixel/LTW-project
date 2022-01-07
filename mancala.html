@@ -99,16 +99,16 @@
 
         <div class="navbar-options">
             <button  type="button" onclick="displayFlex('rules')" class="option center">
-                rules
+                <span>rules</span>
             </button>
             <button  type="button" onclick="displayFlex('classifications'); getClassifications();" class="option center">
-                classifications
+                <span>classification</span>
             </button>
             <button  type="button" onclick="displayFlex('configuration')" class="option center">
-                configuration
+                <span>configuration</span>
             </button>
             <button id="login" type="button" onclick="displayFlex('login-dropdown')" class="option center">
-                login
+                <span>login</span>
             </button>
 
             <form id="login-form" onsubmit="register(event)">
@@ -128,7 +128,7 @@
             </button>
         </div>
     </div>
-    <div class="board-container" id="board-container">
+    <div class="board-container" id="board-container" onclick="closePopUps()">
         <b><div id="name-opponent" class="name-opponent"></div></b>
         <b><div id="name-user" class="name-user"></div></b>
     </div>
