@@ -1,6 +1,7 @@
 var board;
 var pop_ups = ['configuration','rules','classifications','message'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
+var my_server = 'http://localhost:8008';
 var eventUpdate;
 
 window.onload = function() { 
@@ -684,7 +685,7 @@ function getClassifications() {
         body: JSON.stringify( {} )
     };
 
-    fetch(server+'/ranking',options)
+    fetch(my_server+'/ranking',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('ranking' in obj) {
@@ -750,7 +751,7 @@ function register(e) {
                                 "password": password} )
     };
     
-    fetch(server+'/register',options)
+    fetch(my_server+'/register',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) {
