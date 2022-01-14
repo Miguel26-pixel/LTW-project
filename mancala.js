@@ -1,5 +1,5 @@
 var board;
-var pop_ups = ['configuration','rules','classifications','message'];
+var pop_ups = ['configuration','rules','classifications'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
 var my_server = 'http://localhost:8008';
 var eventUpdate;
@@ -94,13 +94,23 @@ function move(id) {
 function quitGame() {
     let configurations = getConfigurations(); 
     if (configurations.opponent == 'computer') {
+        let username = document.getElementById('name-user').innerHTML;
         if (board.game == false) {
             let winner = board.getWinner();
-            showMessage("PLAYER" + winner + "WON!");
+            if (winner == 1) {
+                winner = document.getElementById('name-user').innerHTML;
+                showMessage(winner + "won the game!");
+            } else if (winner = 2) {
+                winner = document.getElementById('name-opponent').innerHTML;
+                showMessage(winner + "won the game!");
+            } else {
+                showMessage("Players draw the game!");
+            }
         } else {
             board.disable_events();
             board.setGame(false);
-            showMessage("PLAYER QUIT");
+            
+            showMessage(username + " quit the game!");
         }
         document.getElementById("play").style.display="flex";
         document.getElementById("quit").style.display="none";
@@ -113,7 +123,11 @@ function quitGame() {
 function showMessage(s) {
     let message = document.getElementById('message-text');
     message.innerHTML = s;
-    displayFlex('message');
+    document.getElementById('message').style.display = 'flex';
+
+    setTimeout(() => { 
+        document.getElementById('message').style.display = 'none';
+    }, 3500);
 }
 
 class Board {
@@ -318,6 +332,7 @@ class Board {
         this.updateHTML();
         if (id === this.configurations.hole_number) {
             if (!this.checkPossibilities(1)) { this.endGame(); }
+            showMessage("Nice! It's your turn again.")
             return;
         }
 
@@ -804,7 +819,7 @@ function checkLogin() {
 
 function join(configurations) {
     if (!checkLogin()) {
-        alert("You need authentication to play against other person");
+        showMessage("You need authentication to play against other person");
         return;
     }
 
@@ -908,7 +923,7 @@ function update() {
             board.update(obj,cookies);
         }
         if ('winner' in obj) {
-            showMessage(obj.winner + " WON!");
+            showMessage(obj.winner + "won the game!");
             leave();
         }
     }

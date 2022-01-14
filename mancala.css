@@ -228,6 +228,24 @@ html {
     flex-direction: column;
 }
 
+.pop-up-message {
+    position: absolute;
+    display: none;
+    left: calc(75vw);
+    width: 350px;
+    height: fit-content;
+    z-index: 2;
+    background-color: rgb(226, 226, 226);
+    padding: 10px;
+    border-radius: 15px;
+    background-image: url('imgs/wood.jpg');
+    flex-direction: column;
+}
+
+#message{
+    top: 80vh;
+    animation: dropmessage 0.7s ease forwards;
+}
 
 #rules{
     top: -400px;
@@ -253,6 +271,11 @@ html {
     0%{opacity: 0;}
     70%{ transform: translateY(450px)}
     100%{ transform: translateY(430px); opacity: 1;}
+}
+
+@keyframes dropmessage {
+    0%{opacity: 0;}
+    100%{ transform: translateY(100px); opacity: 1;}
 }
 
 

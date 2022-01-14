@@ -87,7 +87,7 @@
         <div class="center">CLASSIFICATIONS</div>
     </div>
 
-    <div id="message" class="pop-up">
+    <div id="message" class="pop-up-message">
         <div id="message-text" class="center"></div>
     </div>
 
@@ -128,13 +128,15 @@
             </button>
         </div>
     </div>
-    <div class="board-container" id="board-container" onclick="closePopUps()">
-        <b><div id="name-opponent" class="name-opponent"></div></b>
-        <b><div id="name-user" class="name-user"></div></b>
-    </div>
-    <div class="playBtn-container center-play">
-        <button id="play" type="button" class="center-play" onclick="start_game()">Play</button>
-        <button id="quit" type="button" class="center-play display-none" onclick="quitGame()">Quit</button>
+    <div onclick="closePopUps()">
+        <div class="board-container" id="board-container" >
+            <b><div id="name-opponent" class="name-opponent"></div></b>
+            <b><div id="name-user" class="name-user"></div></b>
+        </div>
+        <div class="playBtn-container center-play">
+            <button id="play" type="button" class="center-play" onclick="start_game()">Play</button>
+            <button id="quit" type="button" class="center-play display-none" onclick="quitGame()">Quit</button>
+        </div>
     </div>
 </body>
 </html>
