@@ -3,12 +3,48 @@ var pop_ups = ['configuration','rules','classifications'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
 var my_server = 'http://localhost:8008';
 var eventUpdate;
+var canvasAnim = false;
 
 window.onload = function() { 
     createBoard(false);
     checkLogin();
 }
 
+function canvasAnimation() {
+    let canvas = document.getElementById('myCanvas');
+    let context = canvas.getContext('2d');
+    let xCenter = canvas.width / 2;
+    let yCenter = canvas.height / 2;
+    let radius = canvas.width / 3;
+    let startSize = radius / 3;
+    let num = 5;
+    let posX=[], posY=[];
+    let angle, i;
+
+    var refresh = window.setInterval(function() {
+        if (canvasAnim === false) { 
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            clearInterval(refresh);
+            return; 
+        }
+
+        num++;
+        context.clearRect ( 0 , 0 , xCenter*2 , yCenter*2 );
+
+        for (i=0; i<9; i++){
+            context.beginPath();
+            context.fillStyle = 'rgba(183,146,89,'+.1*i+')';
+            if (posX.length==i){
+                angle = Math.PI*i*.25;
+                posX[i] = xCenter + radius * Math.cos(angle);
+                posY[i] = yCenter + radius * Math.sin(angle);
+            }
+            context.arc(posX[(i+num)%8], posY[(i+num)%8], startSize/9*i, 0, Math.PI*2, 1); 
+            context.fill();
+        }
+        if (num === 8) num = 0;
+    }, 100);
+}
 
 function getConfigurations() {
     let options1 = document.getElementsByName('radio1');
@@ -99,10 +135,10 @@ function quitGame() {
             let winner = board.getWinner();
             if (winner == 1) {
                 winner = document.getElementById('name-user').innerHTML;
-                showMessage(winner + "won the game!");
+                showMessage(winner + " won the game!");
             } else if (winner = 2) {
                 winner = document.getElementById('name-opponent').innerHTML;
-                showMessage(winner + "won the game!");
+                showMessage(winner + " won the game!");
             } else {
                 showMessage("Players draw the game!");
             }
@@ -700,7 +736,7 @@ function getClassifications() {
         body: JSON.stringify( {} )
     };
 
-    fetch(my_server+'/ranking',options)
+    fetch(server+'/ranking',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('ranking' in obj) {
@@ -766,7 +802,7 @@ function register(e) {
                                 "password": password} )
     };
     
-    fetch(my_server+'/register',options)
+    fetch(server+'/register',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) {
@@ -807,6 +843,7 @@ function checkLogin() {
         document.getElementById('login-dropdown').style.display = 'none';
         document.getElementById('logout').style.display = 'flex';
         document.getElementById('name-user').innerHTML = cookies['nick'];
+        document.getElementById('name-opponent').innerHTML = 'OPPONENT';
         return true;
     } else {
         document.getElementById('logout').style.display = 'none';
@@ -847,6 +884,8 @@ function join(configurations) {
                 closePopUps();
                 document.getElementById("quit").style.display="flex";
                 document.getElementById("play").style.display="none";
+                canvasAnim = true;
+                canvasAnimation();
                 update();
             }
         })
@@ -856,6 +895,7 @@ function join(configurations) {
 }
 
 function leave() {
+    canvasAnim = false;
     let cookies = getCookies();
     let options = {
         method: 'POST',
@@ -920,10 +960,15 @@ function update() {
         let obj = JSON.parse(event.data);
 
         if ('board' in obj) {
+            canvasAnim = false;
             board.update(obj,cookies);
         }
         if ('winner' in obj) {
-            showMessage(obj.winner + "won the game!");
+            if (obj.winner !== null) {
+                showMessage(obj.winner + " won the game!");
+            } else {
+                showMessage("Game aborted");
+            }
             leave();
         }
     }

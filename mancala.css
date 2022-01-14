@@ -32,11 +32,12 @@ html {
 .board-container {
     --margin-top: 5%;
     position: relative;
-    height: calc(80vh - 100px);
+    height: calc(80vh - 300px);
+    min-height: 410px;
 }
 
 .playBtn-container {
-    height: calc(20vh);
+    height: 200px;
 }
 
 .board {
