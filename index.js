@@ -36,7 +36,7 @@ const server = http.createServer(function (request, response) {
     }
 });
 
-server.listen(8008);
+server.listen(8960);
 
 function do_ranking(request,response) {
     fs.readFile(path_ranking, function(err, data){

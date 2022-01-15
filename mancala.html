@@ -57,29 +57,35 @@
 
     <div id="configuration" class="pop-up" style="background:url('imgs/wood.jpg')">
         <div class="configurations" style="width: 100%;">
-            <div class="login-title center" style="width: 40%;">number of holes on each side</div>
-            <input id="hole_number" class="center" style="width: 40% !important;" type="number" name="hole_number" value="6">
+            <div class="login-title center" style="width: 50%;">number of holes on each side</div>
+            <input id="hole_number" class="center" style="width: 25% !important;" type="number" name="hole_number" value="6">
             
-            <div class="login-title center" style="width: 40%;">initial number of seeds on each hole</div>
-            <input id="seed_number" type="number" name="seed_number" value="4">
+            <div class="login-title center" style="width: 50%;">initial number of seeds on each hole</div>
+            <input id="seed_number" type="number" name="seed_number" style="width: 25% !important;" value="4">
             
-            <div class="login-title center" style="width: 40%;">play against:</div>
+            <div class="login-title center" style="width: 50%;">play against:</div>
             <input type="radio" id="person" name="radio1" checked>
             <label for="person">Person</label>
             <input type="radio" id="computer" name="radio1">
             <label for="computer">Computer</label>
             
-            <div class="login-title center" style="width: 40%;">who start the game</div>
+            <div class="login-title center" style="width: 50%;">who start the game</div>
             <input type="radio" id="person" name="radio2" checked>
             <label for="person">Person</label>
             <input type="radio" id="computer" name="radio2">
             <label for="computer">Computer</label>
             
-            <div class="login-title center" style="width: 40%;">difficulty</div>
+            <div class="login-title center" style="width: 50%;">difficulty</div>
             <input type="radio" id="easy" name="radio3">
-            <label for="easy">Easy</label>
+            <label for="easy">Easy&nbsp;&nbsp;</label>
             <input type="radio" id="hard" name="radio3" checked>
             <label for="hard">Hard</label>
+
+            <div class="login-title center" style="width: 50%;">classifications</div>
+            <input type="radio" id="server" name="radio4">
+            <label for="easy">Server</label>
+            <input type="radio" id="webstorage" name="radio4" checked>
+            <label for="hard">WebStorage</label>
         </div>
     </div>
 
@@ -102,10 +108,10 @@
                 <span>rules</span>
             </button>
             <button  type="button" onclick="displayFlex('classifications'); getClassifications();" class="option center">
-                <span>classification</span>
+                <span>classifications</span>
             </button>
             <button  type="button" onclick="displayFlex('configuration')" class="option center">
-                <span>configuration</span>
+                <span>configurations</span>
             </button>
             <button id="login" type="button" onclick="displayFlex('login-dropdown')" class="option center">
                 <span>login</span>

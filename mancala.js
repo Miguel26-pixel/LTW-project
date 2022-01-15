@@ -1,7 +1,7 @@
 var board;
 var pop_ups = ['configuration','rules','classifications'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
-var my_server = 'http://localhost:8008';
+var my_server = 'http://twserver.alunos.dcc.fc.up.pt:8960';
 var eventUpdate;
 var canvasAnim = false;
 
@@ -67,12 +67,19 @@ function getConfigurations() {
         if (options3[i].checked)
             difficulty = options3[i];
     }
+    let options4 = document.getElementsByName('radio4');
+    let ranking = options3[0];
+    for (let i = 0; i < options4.length; i++) {
+        if (options4[i].checked)
+        ranking = options4[i];
+    }
     let c = {   
         hole_number: parseInt(document.getElementById("hole_number").value),
         seed_number: parseInt(document.getElementById("seed_number").value),
         first: first.id,
         difficulty: difficulty.id,
-        opponent: opponent.id
+        opponent: opponent.id,
+        classifications: ranking.id
     };
     return c;
 }
@@ -128,24 +135,30 @@ function move(id) {
 }
 
 function quitGame() {
+    let ranking = JSON.parse(localStorage.getItem('ranking'));
+    if (ranking === null) {
+        ranking = {'ranking': []};
+    }
     let configurations = getConfigurations(); 
     if (configurations.opponent == 'computer') {
         let username = document.getElementById('name-user').innerHTML;
+        let opponent = document.getElementById('name-opponent').innerHTML;
         if (board.game == false) {
             let winner = board.getWinner();
+            saveLocal(winner - 1,[username,opponent],ranking);
             if (winner == 1) {
-                winner = document.getElementById('name-user').innerHTML;
-                showMessage(winner + " won the game!");
+                showMessage(username + " won the game!");
             } else if (winner = 2) {
-                winner = document.getElementById('name-opponent').innerHTML;
-                showMessage(winner + " won the game!");
+                showMessage(opponent + " won the game!");
             } else {
                 showMessage("Players draw the game!");
             }
+            
         } else {
             board.disable_events();
             board.setGame(false);
-            
+
+            saveLocal(1,[username,opponent],ranking);
             showMessage(username + " quit the game!");
         }
         document.getElementById("play").style.display="flex";
@@ -153,7 +166,24 @@ function quitGame() {
     } else {
         leave(); 
     }
+}
 
+function saveLocal(winner,players, ranking) {
+    for (let player in players) {
+        let done = false;
+        for (rank of ranking.ranking) {
+            if (rank['nick'] === players[player]) {
+                rank['games'] += 1;
+                if (winner === player) rank['victories'] += 1;
+                done = true;
+            }
+        }
+        if (!done) {
+            let r = {'nick': players[player], 'victories': (winner == player) ? 1 : 0, 'games': 1};
+            ranking.ranking.push(r);
+        }
+    }
+    localStorage.setItem('ranking', JSON.stringify(ranking));
 }
 
 function showMessage(s) {
@@ -731,16 +761,76 @@ class Points {
 //API
 
 function getClassifications() {
-    let options = {
-        method: 'POST',
-        body: JSON.stringify( {} )
-    };
+    let classifications = document.getElementById('classifications');
+    
+    if (classifications.children.length > 1) {
+        classifications.removeChild(classifications.lastChild);
+    }
+    if (getConfigurations().classifications == 'server') {
+        let options = {
+            method: 'POST',
+            body: JSON.stringify( {} )
+        };
+    
+        fetch(server+'/ranking',options)
+            .then(response => response.json())
+            .then(function(obj) {
+                if ('ranking' in obj) {
+                    let ranking = obj.ranking;
+                    let table = document.createElement('table');
+                    table.style.width = '100%';
+                    table.className = 'styled-table';
+    
+                    table.createTHead();
+                    let tr = table.insertRow();
+    
+                    let properties = {0: 'Nickname', 1: "Victories", 2: "Games"};
+                    for (prop in properties) {
+                        let th = document.createElement('th');
+                        th.innerHTML = properties[prop];
+                        tr.appendChild(th);
+                    }
+    
+                    table.createTBody();
+                    
+                    for (let i = 0; i < ranking.length; i++) {
+                        let tr2 = table.insertRow();
+                        tr2.setAttribute('background', 'imgs/wood5.jpg');
+    
+                        let td1 = document.createElement('td');
+                        td1.innerHTML = ranking[i].nick;
+                        tr2.appendChild(td1);
+    
+                        let td2 = document.createElement('td');
+                        td2.innerHTML = ranking[i].victories;
+                        tr2.appendChild(td2);
+    
+                        let td3 = document.createElement('td');
+                        td3.innerHTML = ranking[i].games;
+                        tr2.appendChild(td3);
+                    }
+    
+                    classifications.appendChild(table);
+                } else {
+                    console.log(obj.error);
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    } else {
+        let classifications = document.getElementById('classifications');
+    
+        if (classifications.children.length > 1) {
+            classifications.removeChild(classifications.lastChild);
+        }
 
-    fetch(server+'/ranking',options)
-        .then(response => response.json())
-        .then(function(obj) {
-            if ('ranking' in obj) {
-                let ranking = obj.ranking;
+        if (typeof(Storage) !== "undefined") {
+            let ranking = JSON.parse(localStorage.getItem('ranking'));
+            if (ranking != null) {
+                ranking = ranking.ranking.sort(function(a,b) {
+                    return b.victories - a.victories;
+                });
                 let table = document.createElement('table');
                 table.style.width = '100%';
                 table.className = 'styled-table';
@@ -756,8 +846,10 @@ function getClassifications() {
                 }
 
                 table.createTBody();
-                
+                let count = 0;
                 for (let i = 0; i < ranking.length; i++) {
+                    if (count === 10) break;
+                    count++;
                     let tr2 = table.insertRow();
                     tr2.setAttribute('background', 'imgs/wood5.jpg');
 
@@ -774,22 +866,12 @@ function getClassifications() {
                     tr2.appendChild(td3);
                 }
 
-
-                let classifications = document.getElementById('classifications');
-
-                if (classifications.children.length > 1) {
-                    classifications.removeChild(classifications.lastChild);
-                }
-
                 classifications.appendChild(table);
-
-            } else {
-                console.log(obj.error);
             }
-        })
-        .catch(function(error) {
-            console.log(error);
-        });
+        } else {
+            console.log("Web Storage not supported!");
+        }
+    }
 }
 
 function register(e) {
@@ -943,8 +1025,6 @@ function notify(id) {
             console.log(obj);
             if ('error' in obj) {
                 console.log(obj.error);
-            } else if (Object.getOwnPropertyNames(obj).length == 0) {
-                console.log('PASSOU');
             }
         })
         .catch(function(error) {
