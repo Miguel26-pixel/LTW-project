@@ -1022,7 +1022,6 @@ function notify(id) {
     fetch(server+'/notify',options)
         .then(response => response.json())
         .then(function(obj) {
-            console.log(obj);
             if ('error' in obj) {
                 console.log(obj.error);
             }
