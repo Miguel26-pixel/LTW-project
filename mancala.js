@@ -1,7 +1,8 @@
 var board;
 var pop_ups = ['configuration','rules','classifications'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
-var my_server = 'http://twserver.alunos.dcc.fc.up.pt:8960';
+//var my_server = 'http://twserver.alunos.dcc.fc.up.pt:8960';
+var my_server = 'http://localhost:8008';
 var eventUpdate;
 var canvasAnim = false;
 
@@ -68,18 +69,27 @@ function getConfigurations() {
             difficulty = options3[i];
     }
     let options4 = document.getElementsByName('radio4');
-    let ranking = options3[0];
+    let ranking = options4[0];
     for (let i = 0; i < options4.length; i++) {
         if (options4[i].checked)
         ranking = options4[i];
     }
+
+    let options5 = document.getElementsByName('radio5');
+    let servers = options5[0];
+    for (let i = 0; i < options5.length; i++) {
+        if (options5[i].checked)
+        servers = options5[i];
+    }
+
     let c = {   
         hole_number: parseInt(document.getElementById("hole_number").value),
         seed_number: parseInt(document.getElementById("seed_number").value),
         first: first.id,
         difficulty: difficulty.id,
         opponent: opponent.id,
-        classifications: ranking.id
+        classifications: ranking.id,
+        server: servers.id
     };
     return c;
 }
@@ -766,13 +776,22 @@ function getClassifications() {
     if (classifications.children.length > 1) {
         classifications.removeChild(classifications.lastChild);
     }
-    if (getConfigurations().classifications == 'server') {
+
+    let configurations = getConfigurations();
+
+    if (configurations.classifications == 'server') {
         let options = {
             method: 'POST',
             body: JSON.stringify( {} )
         };
-    
-        fetch(server+'/ranking',options)
+
+        if (configurations.server == 'provided_server') {
+            this_server = server;
+        } else {
+            this_server = my_server;
+        }
+
+        fetch(this_server+'/ranking',options)
             .then(response => response.json())
             .then(function(obj) {
                 if ('ranking' in obj) {
@@ -883,8 +902,16 @@ function register(e) {
         body: JSON.stringify( { "nick": username,
                                 "password": password} )
     };
+
+    let configurations = getConfigurations();
+
+    if (configurations.server == 'provided_server') {
+        this_server = server;
+    } else {
+        this_server = my_server;
+    }
     
-    fetch(server+'/register',options)
+    fetch(this_server+'/register',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) {
@@ -954,7 +981,13 @@ function join(configurations) {
                             } )
     };
 
-    fetch(server+'/join',options)
+    if (configurations.server == 'provided_server') {
+        this_server = server;
+    } else {
+        this_server = my_server;
+    }
+
+    fetch(this_server+'/join',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) {
@@ -987,7 +1020,15 @@ function leave() {
                             } )
     };
 
-    fetch(server+'/leave',options)
+    let configurations = getConfigurations();
+
+    if (configurations.server == 'provided_server') {
+        this_server = server;
+    } else {
+        this_server = my_server;
+    }
+
+    fetch(this_server+'/leave',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) { console.log(obj.error); }

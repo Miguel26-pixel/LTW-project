@@ -3,6 +3,7 @@ const url = require('url');
 const fs = require('fs');
 const rank = require('./modules/ranking.js');
 const register = require('./modules/register.js');
+const game = require('./modules/game.js');
 
 const path_ranking = './data/ranking.json';
 const path_users = './data/users.json';
@@ -24,6 +25,12 @@ const server = http.createServer(function (request, response) {
                 case '/register':
                     do_register(request, response);
                     break;
+                case '/join':
+                    do_join(request, response);
+                    break;
+                case '/leave':
+                    do_leave(request, response);
+                    break;
                 default:
                     response.writeHead(404, {'Content-Type': 'text/plain'});
                     response.end("404 Not found\n");
@@ -36,7 +43,8 @@ const server = http.createServer(function (request, response) {
     }
 });
 
-server.listen(8960);
+//server.listen(8960);
+server.listen(8008);
 
 function do_ranking(request,response) {
     fs.readFile(path_ranking, function(err, data){
@@ -109,6 +117,74 @@ function do_register(request,response) {
                 response.writeHead(400, headers);
                 response.end(JSON.stringify({'error': 'server error on request to '+request.url}));
             }
+        })
+        .on('error', (err) => { 
+            response.writeHead(400, headers);
+            response.end(JSON.stringify({'error': 'server error on request to '+request.url}));
+        });
+}
+
+
+function do_join(request,response) {
+    let body = '';
+    request.on('data', (chunk) => { body += chunk;  })
+        .on('end', () => {
+            join_input = JSON.parse(body);
+            fs.readFile(path_users, function(err, users_data){
+                if(! err) {
+                    let users = JSON.parse(users_data.toString());
+                    let status = register.validate_user(join_input,users);
+                    if (status === 'valid') {
+                        if (game.validate_join(join_input) === true) {
+                            let hash = game.get_game(join_input);
+                            response.writeHead(200, headers);
+                            response.end(JSON.stringify({'game': hash}));
+                        }
+                    } else {
+                        response.writeHead(400, headers);
+                        response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                    }
+                } else {
+                    response.writeHead(400, headers);
+                    response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                }
+            });
+        })
+        .on('error', (err) => { 
+            response.writeHead(400, headers);
+            response.end(JSON.stringify({'error': 'server error on request to '+request.url}));
+        });
+}
+
+function do_leave(request,response) {
+    let body = '';
+    request.on('data', (chunk) => { body += chunk;  })
+        .on('end', () => {
+            leave_input = JSON.parse(body);
+            fs.readFile(path_users, function(err, users_data){
+                if(! err) {
+                    let users = JSON.parse(users_data.toString());
+                    let status = register.validate_user(leave_input,users);
+                    if (status === 'valid') {
+                        if (game.validate_leave(leave_input) === true) {
+                            let leave = game.leave_game(leave_input);
+                            if (leave) {
+                                response.writeHead(200, headers);
+                                response.end(JSON.stringify({}));
+                            } else {
+                                response.writeHead(400, headers);
+                                response.end(JSON.stringify({'error': 'Not a valid game'}));
+                            }
+                        }
+                    } else {
+                        response.writeHead(400, headers);
+                        response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                    }
+                } else {
+                    response.writeHead(400, headers);
+                    response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                }
+            });
         })
         .on('error', (err) => { 
             response.writeHead(400, headers);
