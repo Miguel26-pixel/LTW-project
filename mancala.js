@@ -1060,11 +1060,21 @@ function notify(id) {
                             } )
     };
 
-    fetch(server+'/notify',options)
+    let configurations = getConfigurations();
+
+    if (configurations.server == 'provided_server') {
+        this_server = server;
+    } else {
+        this_server = my_server;
+    }
+
+    fetch(this_server+'/notify',options)
         .then(response => response.json())
         .then(function(obj) {
             if ('error' in obj) {
                 console.log(obj.error);
+            } else {
+                console.log('all ok');
             }
         })
         .catch(function(error) {
@@ -1074,12 +1084,21 @@ function notify(id) {
 
 function update() {
     let cookies = getCookies();
-    eventUpdate = new EventSource(server+'/update?nick='+cookies['nick']+'&game='+cookies['game']);
+
+    let configurations = getConfigurations();
+
+    if (configurations.server == 'provided_server') {
+        this_server = server;
+    } else {
+        this_server = my_server;
+    }
+
+    eventUpdate = new EventSource(this_server+'/update?nick='+cookies['nick']+'&game='+cookies['game']);
 
     eventUpdate.onmessage = function(event) {
         let obj = JSON.parse(event.data);
-
         if ('board' in obj) {
+            console.log(obj.board);
             canvasAnim = false;
             board.update(obj,cookies);
         }

@@ -14,6 +14,13 @@ const headers = {
     'Access-Control-Allow-Origin': '*'        
 };
 
+const headers_sse = {    
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Access-Control-Allow-Origin': '*',
+    'Connection': 'keep-alive'
+}
+
 const server = http.createServer(function (request, response) {
     const parsedUrl = url.parse(request.url,true);
     switch(request.method) {
@@ -30,6 +37,20 @@ const server = http.createServer(function (request, response) {
                     break;
                 case '/leave':
                     do_leave(request, response);
+                    break;
+                case '/notify':
+                    do_notify(request, response);
+                    break;
+                default:
+                    response.writeHead(404, {'Content-Type': 'text/plain'});
+                    response.end("404 Not found\n");
+                    break;
+            }
+            break;
+        case 'GET': 
+            switch(parsedUrl.pathname) {
+                case '/update':
+                    do_update(request, response);
                     break;
                 default:
                     response.writeHead(404, {'Content-Type': 'text/plain'});
@@ -69,7 +90,7 @@ function do_register(request,response) {
                 user_input = JSON.parse(body);
                 let valid = register.validate_input(user_input);
                 if (!valid) {
-                    response.writeHead(401, headers);
+                    response.writeHead(400, headers);
                     response.end(JSON.stringify({'error': 'password with less than 6 characters'}));
                 } else {
                     fs.readFile(path_users, function(err, data){
@@ -141,8 +162,8 @@ function do_join(request,response) {
                             response.end(JSON.stringify({'game': hash}));
                         }
                     } else {
-                        response.writeHead(400, headers);
-                        response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                        response.writeHead(401, headers);
+                        response.end(JSON.stringify({'error': 'autentication failed'}));
                     }
                 } else {
                     response.writeHead(400, headers);
@@ -177,8 +198,8 @@ function do_leave(request,response) {
                             }
                         }
                     } else {
-                        response.writeHead(400, headers);
-                        response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                        response.writeHead(401, headers);
+                        response.end(JSON.stringify({'error': 'autentication failed'}));
                     }
                 } else {
                     response.writeHead(400, headers);
@@ -190,4 +211,53 @@ function do_leave(request,response) {
             response.writeHead(400, headers);
             response.end(JSON.stringify({'error': 'server error on request to '+request.url}));
         });
+}
+
+function do_notify(request,response) {
+    let body = '';
+    request.on('data', (chunk) => { body += chunk;  })
+        .on('end', () => {
+            notify_input = JSON.parse(body);
+            fs.readFile(path_users, function(err, users_data){
+                if(! err) {
+                    let users = JSON.parse(users_data.toString());
+                    let status = register.validate_user(notify_input,users);
+                    if (status === 'valid') {
+                        if (game.validate_notify(notify_input) === 'valid') {
+                            game.move(notify_input['move'],notify_input['game']);
+                            response.writeHead(200, headers);
+                            response.end(JSON.stringify({}));
+                        } else if (game.validate_notify(notify_input) === 'turn') {
+                            response.writeHead(400, headers);
+                            response.end(JSON.stringify({'error': 'Not your turn to play'}));
+                        } else {
+                            response.writeHead(400, headers);
+                            response.end(JSON.stringify({'error': 'Invalid empty pit'}));
+                        }
+                    } else {
+                        response.writeHead(401, headers);
+                        response.end(JSON.stringify({'error': 'autentication failed'}));
+                    }
+                } else {
+                    response.writeHead(400, headers);
+                    response.end(JSON.stringify({'error': 'server error on request to'+request.url}));
+                }
+            });
+        })
+        .on('error', (err) => { 
+            response.writeHead(400, headers);
+            response.end(JSON.stringify({'error': 'server error on request to '+request.url}));
+        });
+}
+
+function do_update(request,response) {
+    response.writeHead(200, headers_sse);
+
+    let parsedURL = url.parse(request.url,true);
+    const query = parsedURL.query;
+
+    request.on('close', () => game.forget(query));
+
+    game.add_response(query, response);
+    setImmediate(() => game.update(query));
 }

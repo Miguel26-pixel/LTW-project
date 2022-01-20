@@ -125,7 +125,7 @@ html {
 
 .name-opponent {
     margin: 0;
-    width: 100px;
+    width: 150px;
     overflow: hidden;
     position: relative;
     top: calc(50% - 190px);
@@ -135,13 +135,12 @@ html {
 .name-user {
     text-align: right;
     margin: 0;
-    width: 100px;
+    width: 150px;
     overflow: hidden;
     position: relative;
     top: calc(50% + 240px); 
     left: calc(50% + 340px);
 }
-
 
 .blue-rect {
 
