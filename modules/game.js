@@ -243,8 +243,10 @@ class Game {
         
         if (this.board['sides'][opponent]['store'] > this.board['sides'][this.turn]['store']) {
             winner = opponent;
-        } else {
+        } else if (this.board['sides'][opponent]['store'] < this.board['sides'][this.turn]['store']) {
             winner = this.turn;
+        } else {
+            winner = null;
         }
 
         setImmediate(() => this.winner(winner),[winner]);

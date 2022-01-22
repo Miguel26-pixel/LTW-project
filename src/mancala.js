@@ -1073,8 +1073,6 @@ function notify(id) {
         .then(function(obj) {
             if ('error' in obj) {
                 console.log(obj.error);
-            } else {
-                console.log('all ok');
             }
         })
         .catch(function(error) {
@@ -1098,7 +1096,6 @@ function update() {
     eventUpdate.onmessage = function(event) {
         let obj = JSON.parse(event.data);
         if ('board' in obj) {
-            console.log(obj.board);
             canvasAnim = false;
             board.update(obj,cookies);
         }
@@ -1106,7 +1103,7 @@ function update() {
             if (obj.winner !== null) {
                 showMessage(obj.winner + " won the game!");
             } else {
-                showMessage("Game aborted");
+                showMessage("Players drawn the game");
             }
             leave();
         }
