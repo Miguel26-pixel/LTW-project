@@ -1,7 +1,7 @@
 var board;
 var pop_ups = ['configuration','rules','classifications'];
 var server = 'http://twserver.alunos.dcc.fc.up.pt:8008';
-var my_server = 'http://twserver.alunos.dcc.fc.up.pt:9060';
+var my_server = 'http://twserver.alunos.dcc.fc.up.pt:8960';
 //var my_server = 'http://localhost:8008';
 var eventUpdate;
 var canvasAnim = false;
