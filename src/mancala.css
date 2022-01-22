@@ -45,7 +45,6 @@ html {
     top: calc(50% - 200px);
     left: calc(50% - 500px);   
     width: 1000px;
-    min-width: none;
     height: 400px;
     border: 5px solid gray;
     background-image: url('imgs/wood2.jpg');
@@ -163,7 +162,6 @@ html {
 
 .header {
     display: flex;
-    align-items: right;
     height: 80px;
     background-color: rgb(226, 226, 226);
     padding-left: 2%;
@@ -203,7 +201,6 @@ html {
     top: calc(50vh - 300px);
     left: calc(50vw - 350px);
     width: 700px;
-    height: fit-content;
     z-index: 2;
     background-color: rgb(226, 226, 226);
     padding: 10px;
@@ -230,9 +227,8 @@ html {
 .pop-up-message {
     position: absolute;
     display: none;
-    left: calc(75vw);
+    right: calc(5vw);
     width: 350px;
-    height: fit-content;
     z-index: 2;
     background-color: rgb(226, 226, 226);
     padding: 10px;
@@ -247,17 +243,17 @@ html {
 }
 
 #rules{
-    top: -400px;
+    top: -450px;
     animation: drop 0.7s ease forwards;
 }
 
 #configuration{
-    top: -400px;
+    top: -450px;
     animation: drop 0.7s ease forwards;
 }
 
 #classifications{
-    top: -500px;
+    top: -450px;
     animation: drop 0.7s ease forwards;
 }
 
@@ -321,7 +317,6 @@ html {
     position: relative;
     display: flex;
     justify-content: flex-end;
-    background-color: none;
     width: 80%;
 }
 

@@ -803,7 +803,7 @@ function getClassifications() {
                     table.createTHead();
                     let tr = table.insertRow();
     
-                    let properties = {0: 'Nickname', 1: "Victories", 2: "Games"};
+                    let properties = {0:'Rank',1: 'Nickname', 2: "Victories", 3: "Games"};
                     for (prop in properties) {
                         let th = document.createElement('th');
                         th.innerHTML = properties[prop];
@@ -811,11 +811,17 @@ function getClassifications() {
                     }
     
                     table.createTBody();
-                    
+                    let count = 0;
                     for (let i = 0; i < ranking.length; i++) {
+                        if (count === 10) break;
+                            count++;
                         let tr2 = table.insertRow();
-                        tr2.setAttribute('background', 'imgs/wood5.jpg');
+                        tr2.setAttribute('background', 'src/imgs/wood5.jpg');
     
+                        let td0 = document.createElement('td');
+                        td0.innerHTML = count;
+                        tr2.appendChild(td0);
+
                         let td1 = document.createElement('td');
                         td1.innerHTML = ranking[i].nick;
                         tr2.appendChild(td1);
@@ -857,7 +863,7 @@ function getClassifications() {
                 table.createTHead();
                 let tr = table.insertRow();
 
-                let properties = {0: 'Nickname', 1: "Victories", 2: "Games"};
+                let properties = {0:'Rank',1: 'Nickname', 2: "Victories", 3: "Games"};
                 for (prop in properties) {
                     let th = document.createElement('th');
                     th.innerHTML = properties[prop];
@@ -870,7 +876,7 @@ function getClassifications() {
                     if (count === 10) break;
                     count++;
                     let tr2 = table.insertRow();
-                    tr2.setAttribute('background', 'imgs/wood5.jpg');
+                    tr2.setAttribute('background', 'src/imgs/wood5.jpg');
 
                     let td1 = document.createElement('td');
                     td1.innerHTML = ranking[i].nick;
